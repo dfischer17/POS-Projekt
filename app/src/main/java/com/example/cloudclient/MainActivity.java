@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.EditText;
+import android.widget.Button;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -16,69 +18,96 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.File;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.Objects;
 
-/**
- * The main {@link Activity} for the Drive API migration sample app.
- */
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     private static final int REQUEST_CODE_SIGN_IN = 1;
-    private static final int REQUEST_CODE_OPEN_DOCUMENT = 2;
+    private static final int REQUEST_CODE_CREATE_FILE = 2;
+    private static final int REQUEST_CODE_OPEN_FILE = 3;
+    private static final int REQUEST_CODE_SAVE_FILE = 4;
 
-    private DriveServiceHelper mDriveServiceHelper;
-    private String mOpenFileId;
-
-    private EditText mFileTitleEditText;
-    private EditText mDocContentEditText;
+    private TextView contentEditText;
+    private Button createFileBtn;
+    private Button openFileBtn;
+    private Button saveButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Store the EditText boxes to be updated when files are opened/created/modified.
-        mFileTitleEditText = findViewById(R.id.file_title_edittext);
-        mDocContentEditText = findViewById(R.id.doc_content_edittext);
-
-        // Set the onClick listeners for the button bar.
-        findViewById(R.id.open_btn).setOnClickListener(view -> openFilePicker());
-        findViewById(R.id.create_btn).setOnClickListener(view -> createFile());
-        findViewById(R.id.save_btn).setOnClickListener(view -> saveFile());
-        findViewById(R.id.query_btn).setOnClickListener(view -> query());
-
-        // Authenticate the user. For most apps, this should be done when the user performs an
-        // action that requires Drive access rather than in onCreate.
+        // Authentication
         requestSignIn();
+
+        // init UI
+        contentEditText = findViewById(R.id.contentEditText);
+        createFileBtn = findViewById(R.id.createBtn);
+        openFileBtn = findViewById(R.id.openBtn);
+        saveButton = findViewById(R.id.saveBtn);
+
+        // init listeners
+        findViewById(R.id.createBtn).setOnClickListener(v -> createFile());
+        findViewById(R.id.openBtn).setOnClickListener(v -> openFile());
+        findViewById(R.id.saveBtn).setOnClickListener(v -> saveFile());
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        switch (requestCode) {
-            case REQUEST_CODE_SIGN_IN:
-                if (resultCode == Activity.RESULT_OK && resultData != null) {
-                    handleSignInResult(resultData);
-                }
-                break;
+        // Ist Activity Result OK und gibt es ein Ergebnis
+        if (resultCode == Activity.RESULT_OK && resultData != null) {
 
-            case REQUEST_CODE_OPEN_DOCUMENT:
-                if (resultCode == Activity.RESULT_OK && resultData != null) {
-                    Uri uri = resultData.getData();
-                    if (uri != null) {
-                        openFileFromFilePicker(uri);
-                    }
+            // Login
+            if (requestCode == REQUEST_CODE_SIGN_IN) {
+                handleSignInResult(resultData);
+            }
+
+            // file-management
+            else {
+                Uri uri = resultData.getData();
+                String content = "";
+
+                // create File
+                if (requestCode == REQUEST_CODE_CREATE_FILE) {
+                    contentEditText.setText("");
+                    Log.d(TAG, "Datei erstellt");
                 }
-                break;
+
+                // open File
+                else if (requestCode == REQUEST_CODE_OPEN_FILE) {
+                    try {
+                        content = readTextFromUri(uri);
+                        Log.d(TAG, "Datei geoeffnet");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "Fehler bei URI umwandeln");
+                    }
+
+                }
+
+                // save File
+                else if (requestCode == REQUEST_CODE_SAVE_FILE) {
+                    String filecontent = contentEditText.getText().toString();
+
+                    writeTextToFile(uri, filecontent);
+                    Log.d(TAG, "Datei gespeichert");
+                }
+
+                contentEditText.setText(content);
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, resultData);
     }
 
-    /**
-     * Starts a sign-in activity using {@link #REQUEST_CODE_SIGN_IN}.
-     */
     private void requestSignIn() {
         Log.d(TAG, "Requesting sign-in");
 
@@ -93,10 +122,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(client.getSignInIntent(), REQUEST_CODE_SIGN_IN);
     }
 
-    /**
-     * Handles the {@code result} of a completed sign-in activity initiated from {@link
-     * #requestSignIn()}.
-     */
     private void handleSignInResult(Intent result) {
         GoogleSignIn.getSignedInAccountFromIntent(result)
                 .addOnSuccessListener(googleAccount -> {
@@ -114,143 +139,58 @@ public class MainActivity extends AppCompatActivity {
                                     credential)
                                     .setApplicationName("Drive API Migration")
                                     .build();
-
-                    // The DriveServiceHelper encapsulates all REST API and SAF functionality.
-                    // Its instantiation is required before handling any onClick actions.
-                    mDriveServiceHelper = new DriveServiceHelper(googleDriveService);
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
 
-    /**
-     * Opens the Storage Access Framework file picker using {@link #REQUEST_CODE_OPEN_DOCUMENT}.
-     */
-    private void openFilePicker() {
-        if (mDriveServiceHelper != null) {
-            Log.d(TAG, "Opening file picker.");
-
-            Intent pickerIntent = mDriveServiceHelper.createFilePickerIntent();
-
-            // The result of the SAF Intent is handled in onActivityResult.
-            startActivityForResult(pickerIntent, REQUEST_CODE_OPEN_DOCUMENT);
-        }
-    }
-
-    /**
-     * Opens a file from its {@code uri} returned from the Storage Access Framework file picker
-     * initiated by {@link #openFilePicker()}.
-     */
-    private void openFileFromFilePicker(Uri uri) {
-        if (mDriveServiceHelper != null) {
-            Log.d(TAG, "Opening " + uri.getPath());
-
-            mDriveServiceHelper.openFileUsingStorageAccessFramework(getContentResolver(), uri)
-                    .addOnSuccessListener(nameAndContent -> {
-                        String name = nameAndContent.first;
-                        String content = nameAndContent.second;
-
-                        mFileTitleEditText.setText(name);
-                        mDocContentEditText.setText(content);
-
-                        // Files opened through SAF cannot be modified.
-                        setReadOnlyMode();
-                    })
-                    .addOnFailureListener(exception ->
-                            Log.e(TAG, "Unable to open file from picker.", exception));
-        }
-    }
-
-    /**
-     * Creates a new file via the Drive REST API.
-     */
     private void createFile() {
-        if (mDriveServiceHelper != null) {
-            Log.d(TAG, "Creating a file.");
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        intent.putExtra(Intent.EXTRA_TITLE, "untitled.txt");
+        startActivityForResult(intent, REQUEST_CODE_CREATE_FILE);
+    }
 
-            mDriveServiceHelper.createFile()
-                    .addOnSuccessListener(fileId -> readFile(fileId))
-                    .addOnFailureListener(exception ->
-                            Log.e(TAG, "Couldn't create file.", exception));
+    private void openFile() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        startActivityForResult(intent, REQUEST_CODE_OPEN_FILE);
+    }
+
+    public void saveFile() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        startActivityForResult(intent, REQUEST_CODE_SAVE_FILE);
+    }
+
+    private String readTextFromUri(Uri uri) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        try (InputStream inputStream =
+                     getContentResolver().openInputStream(uri);
+             BufferedReader reader = new BufferedReader(
+                     new InputStreamReader(Objects.requireNonNull(inputStream)))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
         }
+        return stringBuilder.toString();
     }
 
-    /**
-     * Retrieves the title and content of a file identified by {@code fileId} and populates the UI.
-     */
-    private void readFile(String fileId) {
-        if (mDriveServiceHelper != null) {
-            Log.d(TAG, "Reading file " + fileId);
+    private void writeTextToFile(Uri uri, String text) {
+        try {
+            ParcelFileDescriptor pfd = this.getContentResolver().openFileDescriptor(uri, "w");
+            FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+            fileOutputStream.write(text.getBytes());
 
-            mDriveServiceHelper.readFile(fileId)
-                    .addOnSuccessListener(nameAndContent -> {
-                        String name = nameAndContent.first;
-                        String content = nameAndContent.second;
-
-                        mFileTitleEditText.setText(name);
-                        mDocContentEditText.setText(content);
-
-                        setReadWriteMode(fileId);
-                    })
-                    .addOnFailureListener(exception ->
-                            Log.e(TAG, "Couldn't read file.", exception));
+            fileOutputStream.close();
+            pfd.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-
-    /**
-     * Saves the currently opened file created via {@link #createFile()} if one exists.
-     */
-    private void saveFile() {
-        if (mDriveServiceHelper != null && mOpenFileId != null) {
-            Log.d(TAG, "Saving " + mOpenFileId);
-
-            String fileName = mFileTitleEditText.getText().toString();
-            String fileContent = mDocContentEditText.getText().toString();
-
-            mDriveServiceHelper.saveFile(mOpenFileId, fileName, fileContent)
-                    .addOnFailureListener(exception ->
-                            Log.e(TAG, "Unable to save file via REST.", exception));
-        }
-    }
-
-    /**
-     * Queries the Drive REST API for files visible to this app and lists them in the content view.
-     */
-    private void query() {
-        if (mDriveServiceHelper != null) {
-            Log.d(TAG, "Querying for files.");
-
-            mDriveServiceHelper.queryFiles()
-                    .addOnSuccessListener(fileList -> {
-                        StringBuilder builder = new StringBuilder();
-                        for (File file : fileList.getFiles()) {
-                            builder.append(file.getName()).append("\n");
-                        }
-                        String fileNames = builder.toString();
-
-                        mFileTitleEditText.setText("File List");
-                        mDocContentEditText.setText(fileNames);
-
-                        setReadOnlyMode();
-                    })
-                    .addOnFailureListener(exception -> Log.e(TAG, "Unable to query files.", exception));
-        }
-    }
-
-    /**
-     * Updates the UI to read-only mode.
-     */
-    private void setReadOnlyMode() {
-        mFileTitleEditText.setEnabled(false);
-        mDocContentEditText.setEnabled(false);
-        mOpenFileId = null;
-    }
-
-    /**
-     * Updates the UI to read/write mode on the document identified by {@code fileId}.
-     */
-    private void setReadWriteMode(String fileId) {
-        mFileTitleEditText.setEnabled(true);
-        mDocContentEditText.setEnabled(true);
-        mOpenFileId = fileId;
     }
 }
+

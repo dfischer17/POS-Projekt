@@ -1,65 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="8dp"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity" >
 
     <EditText
-        android:id="@+id/file_title_edittext"
-        android:layout_height="48dp"
+        android:id="@+id/contentEditText"
         android:layout_width="match_parent"
-        android:layout_alignParentTop="true" />
-
-    <EditText
-        android:id="@+id/doc_content_edittext"
         android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/createBtn"
         android:layout_width="match_parent"
-        android:layout_below="@id/file_title_edittext"
-        android:layout_above="@id/btn_layout" />
+        android:layout_height="wrap_content"
+        android:text="create File" />
 
-    <LinearLayout
-        android:id="@+id/btn_layout"
+    <Button
+        android:id="@+id/openBtn"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true">
+        android:layout_height="wrap_content"
+        android:text="open file" />
 
-        <Button
-            android:id="@+id/open_btn"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="Open"
-            style="?attr/buttonBarButtonStyle" />
-
-        <Button
-            android:id="@+id/create_btn"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="Create"
-            style="?attr/buttonBarButtonStyle" />
-
-        <Button
-            android:id="@+id/save_btn"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="Save"
-            style="?attr/buttonBarButtonStyle" />
-
-        <Button
-            android:id="@+id/query_btn"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="Query"
-            style="?attr/buttonBarButtonStyle" />
-
-    </LinearLayout>
-
-</RelativeLayout>
+    <Button
+        android:id="@+id/saveBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="save file" />
+</LinearLayout>
