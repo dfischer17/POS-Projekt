@@ -19,11 +19,17 @@ public class DriveExplorer {
 
     // Logged alle Dateinamen in der Google Drive
     private class Worker implements Runnable {
+        private  String folderId;
+
+        public Worker(String folderId) {
+            this.folderId = folderId;
+        }
+
         @Override
         public void run() {
             FileList fileList = null;
             try {
-                fileList = driveService.files().list().execute();
+                fileList = driveService.files().list().setQ("'" + folderId + "' in parents").execute();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -32,7 +38,7 @@ public class DriveExplorer {
         }
     }
 
-    public void printFiles() {
-        new Thread(new Worker()).start();
+    public void printFiles(String folderId) {
+        new Thread(new Worker(folderId)).start();
     }
 }

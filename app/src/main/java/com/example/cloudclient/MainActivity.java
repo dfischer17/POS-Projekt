@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void startExplorer() {
         DriveExplorer driveExplorer = new DriveExplorer(driveService);
-        driveExplorer.printFiles();
+        driveExplorer.printFiles("root");
     }
 
     // Tasks
