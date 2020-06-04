@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_UPLOAD_FILE = 5;
 
     // Google Drive API
-    Drive googleDriveService;
+    Drive driveService;
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
     private TextView contentEditText;
@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private Button openFileBtn;
     private Button saveBtn;
     private Button uploadBtn;
+    private Button startExplorerBtn;
 
     private String lastUploadId = "";
 
@@ -70,12 +71,14 @@ public class MainActivity extends AppCompatActivity {
         openFileBtn = findViewById(R.id.openBtn);
         saveBtn = findViewById(R.id.saveBtn);
         uploadBtn = findViewById(R.id.uploadBtn);
+        startExplorerBtn = findViewById(R.id.explorerBtn);
 
         // init listeners
-        findViewById(R.id.createBtn).setOnClickListener(v -> createFile());
-        findViewById(R.id.openBtn).setOnClickListener(v -> openFile());
-        findViewById(R.id.saveBtn).setOnClickListener(v -> saveFile());
-        findViewById(R.id.uploadBtn).setOnClickListener(v -> uploadFile());
+        createFileBtn.setOnClickListener(v -> createFile());
+        openFileBtn.setOnClickListener(v -> openFile());
+        saveBtn.setOnClickListener(v -> saveFile());
+        uploadBtn.setOnClickListener(v -> uploadFile());
+        startExplorerBtn.setOnClickListener(v -> startExplorer());
     }
 
     @Override
@@ -161,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         GoogleSignInOptions signInOptions =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestEmail()
-                        .requestScopes(new Scope(DriveScopes.DRIVE_FILE))
+                        .requestScopes(new Scope(DriveScopes.DRIVE))
                         .build();
         GoogleSignInClient client = GoogleSignIn.getClient(this, signInOptions);
 
@@ -177,9 +180,9 @@ public class MainActivity extends AppCompatActivity {
                     // Use the authenticated account to sign in to the Drive service.
                     GoogleAccountCredential credential =
                             GoogleAccountCredential.usingOAuth2(
-                                    this, Collections.singleton(DriveScopes.DRIVE_FILE));
+                                    this, Collections.singleton(DriveScopes.DRIVE));
                     credential.setSelectedAccount(googleAccount.getAccount());
-                    googleDriveService =
+                    driveService =
                             new Drive.Builder(
                                     AndroidHttp.newCompatibleTransport(),
                                     new GsonFactory(),
@@ -219,6 +222,11 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_UPLOAD_FILE);
     }
 
+    public void startExplorer() {
+        DriveExplorer driveExplorer = new DriveExplorer(driveService);
+        driveExplorer.printFiles();
+    }
+
     // Tasks
     private Task<String> createFileTask(String name) {
         return Tasks.call(mExecutor, () -> {
@@ -227,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                     .setMimeType("text/plain")
                     .setName(name);
 
-            File googleFile = googleDriveService.files().create(metadata).execute();
+            File googleFile = driveService.files().create(metadata).execute();
             if (googleFile == null) {
                 throw new IOException("Null result when requesting file creation.");
             }
@@ -246,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             ByteArrayContent contentStream = ByteArrayContent.fromString("text/plain", content);
 
             // Update the metadata and contents.
-            googleDriveService.files().update(fileId, metadata, contentStream).execute();
+            driveService.files().update(fileId, metadata, contentStream).execute();
             return null;
         });
     }
