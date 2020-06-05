@@ -17,11 +17,11 @@ public class DriveExplorer {
         this.driveService = driveService;
     }
 
-    // Logged alle Dateinamen in der Google Drive
-    private class Worker implements Runnable {
+    // Logged alle Dateinamen und IDs eines Ordners in der Google Drive
+    private class ListFilesThread implements Runnable {
         private  String folderId;
 
-        public Worker(String folderId) {
+        public ListFilesThread(String folderId) {
             this.folderId = folderId;
         }
 
@@ -34,11 +34,33 @@ public class DriveExplorer {
                 e.printStackTrace();
             }
             List<File> listOfFiles = fileList.getFiles();
-            listOfFiles.forEach(f -> Log.d(TAG, "filename: " + f.getName()));
+            listOfFiles.forEach(f -> Log.d(TAG, "filename: " + f.getName() + " id " + f.getId()));
+        }
+    }
+
+    // Loescht eine bestimmte Datei
+    private class DeleteFileThread implements Runnable {
+        private  String fileId;
+
+        public DeleteFileThread(String fileId) {
+            this.fileId = fileId;
+        }
+
+        @Override
+        public void run() {
+            try {
+                driveService.files().delete(fileId).execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void printFiles(String folderId) {
-        new Thread(new Worker(folderId)).start();
+        new Thread(new ListFilesThread(folderId)).start();
+    }
+
+    public void deleteFile(String fileId) {
+        new Thread(new DeleteFileThread(fileId)).start();
     }
 }

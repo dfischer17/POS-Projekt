@@ -224,7 +224,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void startExplorer() {
         DriveExplorer driveExplorer = new DriveExplorer(driveService);
-        driveExplorer.printFiles("root");
+        driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
+        //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
     }
 
     // Tasks
