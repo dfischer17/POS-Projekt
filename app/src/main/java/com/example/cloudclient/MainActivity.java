@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         openFileBtn.setOnClickListener(v -> openFile());
         saveBtn.setOnClickListener(v -> saveFile());
         uploadBtn.setOnClickListener(v -> uploadFile());
-        startExplorerBtn.setOnClickListener(v -> uploadFileExplorer());
+        startExplorerBtn.setOnClickListener(v -> startExplorer());
     }
 
     @Override
@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 else if (requestCode == REQUEST_CODE_EXPLORER_UPLOAD_FILE) {
-                    DriveExplorer driveExplorer = new DriveExplorer(driveService);
+                    DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
                     FileUtils fileUtils = new FileUtils(this);
                     String path = fileUtils.getPath(uri);
                     driveExplorer.uploadFile(path);
@@ -231,10 +231,11 @@ public class MainActivity extends AppCompatActivity {
 
     // Zum Testen der Explorer Funktionen
     public void startExplorer() {
-        DriveExplorer driveExplorer = new DriveExplorer(driveService);
+        DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
         //driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
         //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
         //driveExplorer.renameFile("1j7XwvBEFc03JixbADRv0z5UrHb8t96CU", "Tschuess"); // Datei umbenennen
+        driveExplorer.downloadFile("1AftFNtf_5pOS8QarMuw4QrRgfBqbDDPC", "/storage/self/primary/Download/");
     }
 
     public void uploadFileExplorer() {
