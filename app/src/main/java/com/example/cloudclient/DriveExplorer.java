@@ -1,6 +1,7 @@
 package com.example.cloudclient;
 
 import android.util.Log;
+import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -81,6 +82,37 @@ public class DriveExplorer {
         }
     }
 
+    // Uploaded eine Datei
+    private class UploadFileThread implements Runnable {
+        private String path;
+
+        public UploadFileThread(String path) {
+            this.path = path;
+        }
+
+        @Override
+        public void run() {
+            // Pfad der Datei
+            java.io.File filePath = new java.io.File(path);
+
+            // Information ueber Datei
+            String filename = filePath.getName();
+            File fileMetadata = new File();
+            fileMetadata.setName(filename);
+
+            // Inhalt der Datei
+            FileContent mediaContent = new FileContent("text/plain", filePath);
+            try {
+                driveService.files().create(fileMetadata, mediaContent)
+                        .setFields("id")
+                        .execute();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
     public void printFiles(String folderId) {
         new Thread(new ListFilesThread(folderId)).start();
     }
@@ -91,5 +123,9 @@ public class DriveExplorer {
 
     public void renameFile(String fileId, String filename) {
         new Thread(new RenameFileThread(fileId, filename)).start();
+    }
+
+    public void uploadFile(String path) {
+        new Thread(new UploadFileThread(path)).start();
     }
 }

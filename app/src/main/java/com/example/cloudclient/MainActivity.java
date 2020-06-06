@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_OPEN_FILE = 3;
     private static final int REQUEST_CODE_SAVE_FILE = 4;
     private static final int REQUEST_CODE_UPLOAD_FILE = 5;
+    private static final int REQUEST_CODE_EXPLORER_UPLOAD_FILE = 6;
 
     // Google Drive API
     Drive driveService;
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         openFileBtn.setOnClickListener(v -> openFile());
         saveBtn.setOnClickListener(v -> saveFile());
         uploadBtn.setOnClickListener(v -> uploadFile());
-        startExplorerBtn.setOnClickListener(v -> startExplorer());
+        startExplorerBtn.setOnClickListener(v -> uploadFileExplorer());
     }
 
     @Override
@@ -151,6 +152,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Datei " + filename + " hochgeladen");
                 }
 
+                else if (requestCode == REQUEST_CODE_EXPLORER_UPLOAD_FILE) {
+                    DriveExplorer driveExplorer = new DriveExplorer(driveService);
+                    FileUtils fileUtils = new FileUtils(this);
+                    String path = fileUtils.getPath(uri);
+                    driveExplorer.uploadFile(path);
+                }
                 contentEditText.setText(content);
             }
         }
@@ -222,11 +229,19 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_UPLOAD_FILE);
     }
 
+    // Zum Testen der Explorer Funktionen
     public void startExplorer() {
         DriveExplorer driveExplorer = new DriveExplorer(driveService);
-        driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
+        //driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
         //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
         //driveExplorer.renameFile("1j7XwvBEFc03JixbADRv0z5UrHb8t96CU", "Tschuess"); // Datei umbenennen
+    }
+
+    public void uploadFileExplorer() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("text/plain");
+        startActivityForResult(intent, REQUEST_CODE_EXPLORER_UPLOAD_FILE);
     }
 
     // Tasks
