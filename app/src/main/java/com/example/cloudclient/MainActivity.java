@@ -1,16 +1,29 @@
 package com.example.cloudclient;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
+
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -25,12 +38,17 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
+
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -43,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_OPEN_FILE = 3;
     private static final int REQUEST_CODE_SAVE_FILE = 4;
     private static final int REQUEST_CODE_UPLOAD_FILE = 5;
+    private static final int IMAGE_REQUEST = 1;
 
     // Google Drive API
     Drive googleDriveService;
@@ -53,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private Button openFileBtn;
     private Button saveBtn;
     private Button uploadBtn;
+    private Button photoBtn;
+
+    private String currentImagePath = null;
 
     private String lastUploadId = "";
 
@@ -70,12 +92,14 @@ public class MainActivity extends AppCompatActivity {
         openFileBtn = findViewById(R.id.openBtn);
         saveBtn = findViewById(R.id.saveBtn);
         uploadBtn = findViewById(R.id.uploadBtn);
+        photoBtn = findViewById(R.id.photoBtn);
 
         // init listeners
         findViewById(R.id.createBtn).setOnClickListener(v -> createFile());
         findViewById(R.id.openBtn).setOnClickListener(v -> openFile());
         findViewById(R.id.saveBtn).setOnClickListener(v -> saveFile());
         findViewById(R.id.uploadBtn).setOnClickListener(v -> uploadFile());
+        findViewById(R.id.photoBtn).setOnClickListener(v -> takePhoto());
     }
 
     @Override
@@ -299,4 +323,36 @@ public class MainActivity extends AppCompatActivity {
         }
         return result;
     }
+
+    private void takePhoto(){
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if(cameraIntent.resolveActivity(getPackageManager()) != null){
+            java.io.File imageFile = null;
+
+            try {
+                imageFile = getImageFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if(imageFile != null){
+                Uri imageUri = FileProvider.getUriForFile(this, "com.example.cloudclient.fileprovider",imageFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
+                startActivityForResult(cameraIntent, IMAGE_REQUEST);
+            }
+        }
+    }
+
+    private java.io.File getImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageName = "jpg_" + timeStamp + "_";
+        java.io.File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        java.io.File imageFile = java.io.File.createTempFile(imageName, ".jpg", storageDir);
+        currentImagePath = imageFile.getAbsolutePath();
+        return imageFile;
+    }
+
+
 }

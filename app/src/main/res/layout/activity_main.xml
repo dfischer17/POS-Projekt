@@ -38,4 +38,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="upload file" />
+
+
+
+    <Button
+        android:id="@+id/photoBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="take photo" />
+
+
+
+
 </LinearLayout>
