@@ -2,14 +2,21 @@ package com.example.cloudclient;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.preference.PreferenceManager;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -44,42 +51,38 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SAVE_FILE = 4;
     private static final int REQUEST_CODE_UPLOAD_FILE = 5;
     private static final int REQUEST_CODE_EXPLORER_UPLOAD_FILE = 6;
-
-    // Google Drive API
     Drive driveService;
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
+
+    // Google Drive API
+
     private TextView contentEditText;
-    private Button createFileBtn;
-    private Button openFileBtn;
-    private Button saveBtn;
-    private Button uploadBtn;
-    private Button startExplorerBtn;
+
 
     private String lastUploadId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        SharedPreferences prefs;
+        prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String theme = prefs.getString("theme", "lightTheme");
+
+        if(theme.equals("darkTheme")) {
+            setTheme(R.style.DarkTheme);
+            setContentView(R.layout.activity_main);
+        }
+        else if(theme.equals("lightTheme")){
+            setTheme(R.style.LightTheme);
+            setContentView(R.layout.activity_main);
+        }
         // Authentication
         requestSignIn();
 
         // init UI
         contentEditText = findViewById(R.id.contentEditText);
-        createFileBtn = findViewById(R.id.createBtn);
-        openFileBtn = findViewById(R.id.openBtn);
-        saveBtn = findViewById(R.id.saveBtn);
-        uploadBtn = findViewById(R.id.uploadBtn);
-        startExplorerBtn = findViewById(R.id.explorerBtn);
-
-        // init listeners
-        createFileBtn.setOnClickListener(v -> createFile());
-        openFileBtn.setOnClickListener(v -> openFile());
-        saveBtn.setOnClickListener(v -> saveFile());
-        uploadBtn.setOnClickListener(v -> uploadFile());
-        startExplorerBtn.setOnClickListener(v -> startExplorer());
     }
 
     @Override
@@ -150,9 +153,7 @@ public class MainActivity extends AppCompatActivity {
                                     Log.e(TAG, "Datei " + filename + " konnte nicht hochgeladen werden!"));
 
                     Log.d(TAG, "Datei " + filename + " hochgeladen");
-                }
-
-                else if (requestCode == REQUEST_CODE_EXPLORER_UPLOAD_FILE) {
+                } else if (requestCode == REQUEST_CODE_EXPLORER_UPLOAD_FILE) {
                     DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
                     FileUtils fileUtils = new FileUtils(this);
                     String path = fileUtils.getPath(uri);
@@ -200,50 +201,6 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
 
-    private void createFile() {
-        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        intent.putExtra(Intent.EXTRA_TITLE, "untitled.txt");
-        startActivityForResult(intent, REQUEST_CODE_CREATE_FILE);
-    }
-
-    private void openFile() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        startActivityForResult(intent, REQUEST_CODE_OPEN_FILE);
-    }
-
-    public void saveFile() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        startActivityForResult(intent, REQUEST_CODE_SAVE_FILE);
-    }
-
-    public void uploadFile() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        startActivityForResult(intent, REQUEST_CODE_UPLOAD_FILE);
-    }
-
-    // Zum Testen der Explorer Funktionen
-    public void startExplorer() {
-        DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
-        //driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
-        //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
-        //driveExplorer.renameFile("1j7XwvBEFc03JixbADRv0z5UrHb8t96CU", "Tschuess"); // Datei umbenennen
-        driveExplorer.downloadFile("1AftFNtf_5pOS8QarMuw4QrRgfBqbDDPC", "/storage/self/primary/Download/");
-    }
-
-    public void uploadFileExplorer() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("text/plain");
-        startActivityForResult(intent, REQUEST_CODE_EXPLORER_UPLOAD_FILE);
-    }
 
     // Tasks
     private Task<String> createFileTask(String name) {
@@ -292,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return stringBuilder.toString();
     }
+
     private void writeTextToFile(Uri uri, String text) {
         try {
             ParcelFileDescriptor pfd = this.getContentResolver().openFileDescriptor(uri, "w");
@@ -304,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     public String getFileName(Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {
@@ -325,4 +284,22 @@ public class MainActivity extends AppCompatActivity {
         }
         return result;
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.settingsBtn:
+                Intent temp = new Intent(this, Settings.class);
+                startActivity(temp);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
+
