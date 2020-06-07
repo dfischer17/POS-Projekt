@@ -4,22 +4,17 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.util.Log;
-
 import androidx.core.content.ContextCompat;
-
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-
 import static androidx.core.app.ActivityCompat.requestPermissions;
-import static androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale;
 
 public class DriveExplorer {
     private static final String TAG = "DriveExplorer";
@@ -140,40 +135,30 @@ public class DriveExplorer {
 
         @Override
         public void run() {
-            // Wenn Erlaubnis erhalten Datei downloaden
             if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
-                String filename = "";
-                OutputStream outputStream = new ByteArrayOutputStream();
-                try {
-                    // Dateiname
-                    filename = driveService.files().get(fileId).execute().getName();
 
-                    // Inhalt
+                try {
+                    String filename = driveService.files().get(fileId).execute().getName(); // TODO notwendig?
+
+                    // content
+                    OutputStream outputStream = new ByteArrayOutputStream();
                     driveService.files().get(fileId)
                             .executeMediaAndDownloadTo(outputStream);
                     String filecontent = outputStream.toString();
 
-                    // Datei anlegen
-                    FileOutputStream fos = null;
-                    try {
-                        fos = new FileOutputStream(path + filename);
-                        byte[] buffer = filecontent.getBytes();
-                        fos.write(buffer, 0, buffer.length);
-                        fos.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally{
-                        if(fos != null)
-                            fos.close();
-                    }
-
-                } catch (IOException e) {
+                    // create file
+                    FileOutputStream fos = new FileOutputStream(path);
+                    byte[] buffer = filecontent.getBytes();
+                    fos.write(buffer, 0, buffer.length);
+                    fos.close();
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                 }
-            }
-            // Ansonsten um Erlaubnis fragen
-            else {
+
+
+            } else {
                 requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
             }
         }

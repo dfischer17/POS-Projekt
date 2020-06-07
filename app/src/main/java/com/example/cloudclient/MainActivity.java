@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SAVE_FILE = 4;
     private static final int REQUEST_CODE_UPLOAD_FILE = 5;
     private static final int REQUEST_CODE_EXPLORER_UPLOAD_FILE = 6;
+    private static final int REQUEST_CODE_EXPLORER_DOWNLOAD_FILE = 7;
 
     // Google Drive API
     Drive driveService;
@@ -158,6 +160,18 @@ public class MainActivity extends AppCompatActivity {
                     String path = fileUtils.getPath(uri);
                     driveExplorer.uploadFile(path);
                 }
+
+                else if (requestCode == REQUEST_CODE_EXPLORER_DOWNLOAD_FILE) {
+                    // TODO herausfinden ob Stack Overflow Loesung moeglich ist
+                    FileUtils fileUtils = new FileUtils(this);
+                    DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
+
+                    DocumentFile folder = DocumentFile.fromTreeUri(this, uri);
+                    DocumentFile newfile = folder.createFile("text/plain", "abc.txt");
+
+                    String path = fileUtils.getPath(newfile.getUri());
+                    driveExplorer.downloadFile("1YLXh9a20_S03Gote311QLAdH1WhIDGXt", path);
+                }
                 contentEditText.setText(content);
             }
         }
@@ -235,7 +249,8 @@ public class MainActivity extends AppCompatActivity {
         //driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
         //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
         //driveExplorer.renameFile("1j7XwvBEFc03JixbADRv0z5UrHb8t96CU", "Tschuess"); // Datei umbenennen
-        driveExplorer.downloadFile("1AftFNtf_5pOS8QarMuw4QrRgfBqbDDPC", "/storage/self/primary/Download/");
+        //uploadFileExplorer(); // Datei uploaden
+        downloadFileExplorer(); // Datei downloaden
     }
 
     public void uploadFileExplorer() {
@@ -243,6 +258,11 @@ public class MainActivity extends AppCompatActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
         startActivityForResult(intent, REQUEST_CODE_EXPLORER_UPLOAD_FILE);
+    }
+
+    public void downloadFileExplorer() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, REQUEST_CODE_EXPLORER_DOWNLOAD_FILE);
     }
 
     // Tasks
