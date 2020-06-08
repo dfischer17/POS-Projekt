@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.documentfile.provider.DocumentFile;
@@ -21,30 +22,38 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final int REQUEST_CODE_DOWNLOAD_FILE = 2;
     private static final int REQUEST_CODE_UPLOAD_FILE = 3;
     
     // Google Drive API
     Drive driveService;
+    private List<File> curDirectory = new ArrayList<>();
+    private ListView curDirectoryLayout;
+    private DriveContentAdapter driveContentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
         // Authentication
         requestSignIn();
+
+        // init UI
+        curDirectoryLayout = findViewById(R.id.curDirectoryListView);
 
         // Preferences
         SharedPreferences prefs;
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         String theme = prefs.getString("theme", "lightTheme");
-
         if (theme.equals("darkTheme")) {
             setTheme(R.style.DarkTheme);
             setContentView(R.layout.activity_main);
@@ -52,6 +61,19 @@ public class MainActivity extends AppCompatActivity {
             setTheme(R.style.LightTheme);
             setContentView(R.layout.activity_main);
         }
+
+        // load root directory
+        driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
+        curDirectoryLayout.setAdapter(driveContentAdapter);
+        fillListView(curDirectory); // todo loeschen
+    }
+
+    // todo loeschen
+    private void fillListView(List<File> list) {
+        list.add(new File().setName("Test"));
+        list.add(new File().setName("Test2"));
+        list.add(new File().setName("Test2"));
+        driveContentAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -84,8 +106,6 @@ public class MainActivity extends AppCompatActivity {
                     String path = fileUtils.getPath(uri);
                     driveExplorer.uploadFile(path);
                 }
-
-
             }
         }
         super.onActivityResult(requestCode, resultCode, resultData);
@@ -132,16 +152,16 @@ public class MainActivity extends AppCompatActivity {
         //driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
         //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
         //driveExplorer.renameFile("1j7XwvBEFc03JixbADRv0z5UrHb8t96CU", "Tschuess"); // Datei umbenennen
-        //uploadFileExplorer(); // Datei uploaden
-        //downloadFileExplorer(); // Datei downloaden
+        //upload(); // Datei uploaden
+        //download(); // Datei downloaden
     }
 
-    public void downloadFileExplorer() {
+    public void download() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         startActivityForResult(intent, REQUEST_CODE_DOWNLOAD_FILE);
     }
 
-    public void uploadFileExplorer() {
+    public void upload() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
