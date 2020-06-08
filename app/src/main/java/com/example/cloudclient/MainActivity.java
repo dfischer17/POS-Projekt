@@ -47,9 +47,6 @@ public class MainActivity extends AppCompatActivity {
         // Authentication
         requestSignIn();
 
-        // init UI
-        curDirectoryLayout = findViewById(R.id.curDirectoryListView);
-
         // Preferences
         SharedPreferences prefs;
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -63,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // load root directory
+        curDirectoryLayout = findViewById(R.id.curDirectoryListView);
         driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
         curDirectoryLayout.setAdapter(driveContentAdapter);
         fillListView(curDirectory); // todo loeschen
