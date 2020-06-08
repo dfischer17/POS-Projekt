@@ -66,14 +66,7 @@ public class MainActivity extends AppCompatActivity {
             // file-management
             else {
                 Uri uri = resultData.getData();
-                if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
-                    DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
-                    FileUtils fileUtils = new FileUtils(this);
-                    String path = fileUtils.getPath(uri);
-                    driveExplorer.uploadFile(path);
-                }
-
-                else if (requestCode == REQUEST_CODE_EXPLORER_DOWNLOAD_FILE) {
+                if (requestCode == REQUEST_CODE_DOWNLOAD_FILE) {
                     // TODO herausfinden ob Stack Overflow Loesung moeglich ist
                     FileUtils fileUtils = new FileUtils(this);
                     DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
@@ -84,7 +77,15 @@ public class MainActivity extends AppCompatActivity {
                     String path = fileUtils.getPath(newfile.getUri());
                     driveExplorer.downloadFile("1YLXh9a20_S03Gote311QLAdH1WhIDGXt", path);
                 }
-                contentEditText.setText(content);
+
+                else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
+                    DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
+                    FileUtils fileUtils = new FileUtils(this);
+                    String path = fileUtils.getPath(uri);
+                    driveExplorer.uploadFile(path);
+                }
+
+
             }
         }
         super.onActivityResult(requestCode, resultCode, resultData);
@@ -125,13 +126,6 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
 
-    // Menu
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.settings_menu, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
     // Zum Testen der Explorer Funktionen
     public void startExplorer() {
         DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
@@ -139,19 +133,26 @@ public class MainActivity extends AppCompatActivity {
         //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
         //driveExplorer.renameFile("1j7XwvBEFc03JixbADRv0z5UrHb8t96CU", "Tschuess"); // Datei umbenennen
         //uploadFileExplorer(); // Datei uploaden
-        downloadFileExplorer(); // Datei downloaden
+        //downloadFileExplorer(); // Datei downloaden
+    }
+
+    public void downloadFileExplorer() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, REQUEST_CODE_DOWNLOAD_FILE);
     }
 
     public void uploadFileExplorer() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/plain");
-        startActivityForResult(intent, REQUEST_CODE_EXPLORER_UPLOAD_FILE);
+        startActivityForResult(intent, REQUEST_CODE_UPLOAD_FILE);
     }
 
-    public void downloadFileExplorer() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        startActivityForResult(intent, REQUEST_CODE_EXPLORER_DOWNLOAD_FILE);
+    // Menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
