@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,9 +36,13 @@ public class MainActivity extends AppCompatActivity {
     
     // Google Drive API
     Drive driveService;
+
+    // File Management
     private List<File> curDirectory = new ArrayList<>();
-    private ListView curDirectoryLayout;
     private DriveContentAdapter driveContentAdapter;
+
+    // Erledigt Drive-Befehle
+    DriveExplorer driveExplorer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,19 +64,14 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
         }
 
-        // load root directory
-        curDirectoryLayout = findViewById(R.id.curDirectoryListView);
+        // init UI
+        ListView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
+        Button startExplorerBtn = findViewById(R.id.startExplorerBtn);
+        startExplorerBtn.setOnClickListener(v -> startExplorer());
+
+        // Adapter
         driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
         curDirectoryLayout.setAdapter(driveContentAdapter);
-        fillListView(curDirectory); // todo loeschen
-    }
-
-    // todo loeschen
-    private void fillListView(List<File> list) {
-        list.add(new File().setName("Test"));
-        list.add(new File().setName("Test2"));
-        list.add(new File().setName("Test2"));
-        driveContentAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -147,11 +147,8 @@ public class MainActivity extends AppCompatActivity {
     // Zum Testen der Explorer Funktionen
     public void startExplorer() {
         DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
-        //driveExplorer.printFiles("root"); // Dateien in Ordner anzeigen
-        //driveExplorer.deleteFile("1dzvdc_--ZLq8XQxvgNncIlsDczyx8GPq"); // Datei loeschen
-        //driveExplorer.renameFile("1j7XwvBEFc03JixbADRv0z5UrHb8t96CU", "Tschuess"); // Datei umbenennen
-        //upload(); // Datei uploaden
-        //download(); // Datei downloaden
+        driveExplorer.getFiles("root")
+                .addOnSuccessListener(files -> loadCurDirectory(files));
     }
 
     public void download() {
@@ -182,5 +179,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    // Fuegt durch getFiles Methode vom Drive Explorer erhaltene Dateien ins UI ein
+    private void loadCurDirectory(List<File> files) {
+        curDirectory.clear();
+        curDirectory.addAll(files);
+        driveContentAdapter.notifyDataSetChanged();
     }
 }

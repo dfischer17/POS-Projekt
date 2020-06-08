@@ -3,8 +3,9 @@ package com.example.cloudclient;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.util.Log;
 import androidx.core.content.ContextCompat;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
@@ -14,6 +15,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import static androidx.core.app.ActivityCompat.requestPermissions;
 
 public class DriveExplorer {
@@ -27,27 +31,6 @@ public class DriveExplorer {
     public DriveExplorer(Drive driveService, Activity activity) {
         this.driveService = driveService;
         this.activity = activity;
-    }
-
-    // Logged alle Dateinamen und IDs eines Ordners in der Google Drive
-    private class ListFilesThread implements Runnable {
-        private String folderId;
-
-        public ListFilesThread(String folderId) {
-            this.folderId = folderId;
-        }
-
-        @Override
-        public void run() {
-            FileList fileList = null;
-            try {
-                fileList = driveService.files().list().setQ("'" + folderId + "' in parents").execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            List<File> listOfFiles = fileList.getFiles();
-            listOfFiles.forEach(f -> Log.d(TAG, "filename: " + f.getName() + " id " + f.getId()));
-        }
     }
 
     // Loescht eine bestimmte Datei
@@ -152,8 +135,7 @@ public class DriveExplorer {
                     byte[] buffer = filecontent.getBytes();
                     fos.write(buffer, 0, buffer.length);
                     fos.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
@@ -164,8 +146,21 @@ public class DriveExplorer {
         }
     }
 
-    public void printFiles(String folderId) {
-        new Thread(new ListFilesThread(folderId)).start();
+    // Gibt einen Task zurueck, welcher Dateien aus Verzeichnis laedt
+    public Task<List<File>> getFiles(String folderId) {
+        final Executor mExecutor = Executors.newSingleThreadExecutor();
+        return Tasks.call(mExecutor, () -> {
+            FileList fileList = null;
+            try {
+                fileList = driveService.files().list().setQ("'" + folderId + "' in parents").execute();
+                List<File> curDirectoryFiles = fileList.getFiles();
+                return curDirectoryFiles;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        });
     }
 
     public void deleteFile(String fileId) {
