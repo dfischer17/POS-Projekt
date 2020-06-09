@@ -22,6 +22,7 @@ import static androidx.core.app.ActivityCompat.requestPermissions;
 
 public class DriveExplorer {
     private static final String TAG = "DriveExplorer";
+    public static final String folderMimeType = "application/vnd.google-apps.folder";
 
     // Google Drive API
     private Drive driveService;

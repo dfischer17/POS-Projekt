@@ -79,8 +79,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 File clickedFolder = curDirectory.get(position); // todo Aktion auf Ordner beschraenken
 
-                // Unterordner laden
-                loadCurDirecotry(clickedFolder.getId());
+                // Ueberpruefen ob Auswahl ein Ordner ist
+                if (clickedFolder.getMimeType().equals(DriveExplorer.folderMimeType)) {
+                    // Unterordner laden
+                    loadCurDirecotry(clickedFolder.getId());
+                }
             }
         });
 
