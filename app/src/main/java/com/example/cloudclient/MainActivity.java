@@ -9,6 +9,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
@@ -66,8 +68,21 @@ public class MainActivity extends AppCompatActivity {
 
         // init UI
         ListView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
+
+        // todo fuer Testzwecke später loeschen
         Button startExplorerBtn = findViewById(R.id.startExplorerBtn);
-        startExplorerBtn.setOnClickListener(v -> startExplorer());
+        startExplorerBtn.setOnClickListener(v -> loadCurDirecotry("root"));
+
+        // Erlaubt durchlaufen des FileTrees
+        curDirectoryLayout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                File clickedFolder = curDirectory.get(position); // todo Aktion auf Ordner beschraenken
+
+                // Unterordner laden
+                loadCurDirecotry(clickedFolder.getId());
+            }
+        });
 
         // Adapter
         driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
@@ -144,11 +159,11 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
 
-    // Zum Testen der Explorer Funktionen
-    public void startExplorer() {
+    // Fuegt durch getFiles Methode vom Drive Explorer erhaltene Dateien ins UI ein
+    public void loadCurDirecotry(String folderId) {
         DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
-        driveExplorer.getFiles("root")
-                .addOnSuccessListener(files -> loadCurDirectory(files));
+        driveExplorer.getFiles(folderId)
+                .addOnSuccessListener(files -> loadCurDirectoryHandler(files));
     }
 
     public void download() {
@@ -181,8 +196,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // Fuegt durch getFiles Methode vom Drive Explorer erhaltene Dateien ins UI ein
-    private void loadCurDirectory(List<File> files) {
+    private void loadCurDirectoryHandler(List<File> files) {
         curDirectory.clear();
         curDirectory.addAll(files);
         driveContentAdapter.notifyDataSetChanged();
