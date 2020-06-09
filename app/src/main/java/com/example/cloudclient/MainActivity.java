@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -86,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // Ermoeglicht anzeigen der Context Menues
+        registerForContextMenu(curDirectoryLayout);
 
         // Adapter
         driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
@@ -199,6 +203,43 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Context Menu
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        int viewId = v.getId();
+        if (viewId == R.id.curDirectoryListView) {
+            getMenuInflater().inflate(R.menu.context_menu, menu);
+        }
+        super.onCreateContextMenu(menu, v, menuInfo);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        File selectedFile = curDirectory.get(info.position);
+
+        int selectedAction = item.getItemId();
+
+        switch (selectedAction) {
+            case R.id.context_download:
+                //download();
+                break;
+
+            case R.id.context_rename:
+                //rename();
+                break;
+
+            case R.id.context_delete:
+                //deleteFiles();
+                break;
+
+            default: Log.e(TAG, "Unguelitge Contextmenueauswahl!");
+        }
+
+        return super.onContextItemSelected(item);
+    }
+
+    // Helper
     private void loadCurDirectoryHandler(List<File> files) {
         curDirectory.clear();
         curDirectory.addAll(files);
