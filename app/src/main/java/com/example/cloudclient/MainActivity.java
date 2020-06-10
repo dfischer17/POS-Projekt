@@ -210,7 +210,6 @@ public class MainActivity extends AppCompatActivity {
 
         switch (selectedAction) {
             case R.id.context_download:
-
                 driveExplorer.downloadFileRequest(fileId);
                 break;
 
@@ -222,6 +221,8 @@ public class MainActivity extends AppCompatActivity {
                             EditText renameEditText = dialogView.findViewById(R.id.renameEditText);
                             String newFileName = renameEditText.getText().toString();
                             driveExplorer.renameFile(fileId, newFileName);
+                            curDirectory.get(info.position).setName(newFileName);
+                            updateUI();
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
@@ -230,10 +231,13 @@ public class MainActivity extends AppCompatActivity {
             case R.id.context_delete:
                 new AlertDialog.Builder(this)
                         .setMessage("Do you really want to delete " + selectedFile.getName() + " ?")
-                        .setPositiveButton("delete", (dialog, which) -> driveExplorer.deleteFile(fileId))
+                        .setPositiveButton("delete", (dialog, which) -> {
+                            driveExplorer.deleteFile(fileId);
+                            curDirectory.remove(selectedFile);
+                            updateUI();
+                        })
                         .setNegativeButton("cancel", null)
                         .show();
-
                 break;
 
             default: Log.e(TAG, "Unguelitge Contextmenueauswahl!");
@@ -246,6 +250,10 @@ public class MainActivity extends AppCompatActivity {
     private void loadCurDirectoryHandler(List<File> files) {
         curDirectory.clear();
         curDirectory.addAll(files);
+        driveContentAdapter.notifyDataSetChanged();
+    }
+
+    private void updateUI() {
         driveContentAdapter.notifyDataSetChanged();
     }
 }
