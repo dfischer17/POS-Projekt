@@ -108,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
             else {
                 Uri uri = resultData.getData();
                 if (requestCode == REQUEST_CODE_DOWNLOAD_FILE) {
-                    driveExplorer.downloadFile("1YLXh9a20_S03Gote311QLAdH1WhIDGXt", uri); // todo dynamisch machen
+                    String fileId = driveExplorer.lastDownloadId; //resultData.getStringExtra("id"); todo bessere Loesung finden
+                    driveExplorer.downloadFile(fileId, uri);
                 }
 
                 else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
@@ -164,11 +165,6 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(files -> loadCurDirectoryHandler(files));
     }
 
-    public void download() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-        startActivityForResult(intent, REQUEST_CODE_DOWNLOAD_FILE);
-    }
-
     public void upload() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -207,13 +203,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        File selectedFile = curDirectory.get(info.position);
 
+        File selectedFile = curDirectory.get(info.position);
         int selectedAction = item.getItemId();
 
         switch (selectedAction) {
             case R.id.context_download:
-                //download();
+                String fileId = selectedFile.getId();
+                driveExplorer.downloadFileRequest(fileId);
                 break;
 
             case R.id.context_rename:

@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Bundle;
+
 import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import com.google.android.gms.tasks.Task;
@@ -31,6 +33,8 @@ public class DriveExplorer {
     private Drive driveService;
 
     private Activity activity;
+
+    public String lastDownloadId = ""; // todo bessere Loesung finden
 
     public DriveExplorer(Drive driveService, Activity activity) {
         this.driveService = driveService;
@@ -185,8 +189,10 @@ public class DriveExplorer {
         new Thread(new UploadFileThread(path)).start();
     }
 
-    public void downloadFileRequest() {
+    public void downloadFileRequest(String fileId) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.putExtra("id", fileId);
+        lastDownloadId = fileId; // todo bessere Loesung finden
         activity.startActivityForResult(intent, REQUEST_CODE_DOWNLOAD_FILE);
     }
 
