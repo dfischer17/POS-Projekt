@@ -2,8 +2,11 @@ package com.example.cloudclient;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.http.FileContent;
@@ -15,13 +18,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import static androidx.core.app.ActivityCompat.requestPermissions;
 
 public class DriveExplorer {
     private static final String TAG = "DriveExplorer";
+    private static final int REQUEST_CODE_DOWNLOAD_FILE = 2;
     public static final String folderMimeType = "application/vnd.google-apps.folder";
 
     // Google Drive API
@@ -110,11 +113,11 @@ public class DriveExplorer {
     // Downloaded eine Datei
     private class DownloadFileThread implements Runnable {
         private String fileId;
-        private String path;
+        private Uri uri;
 
-        public DownloadFileThread(String fileId, String path) {
+        public DownloadFileThread(String fileId, Uri uri) {
             this.fileId = fileId;
-            this.path = path;
+            this.uri = uri;
         }
 
         @Override
@@ -123,7 +126,13 @@ public class DriveExplorer {
                     PackageManager.PERMISSION_GRANTED) {
 
                 try {
-                    String filename = driveService.files().get(fileId).execute().getName(); // TODO notwendig?
+                    FileUtils fileUtils = new FileUtils(activity);
+                    DocumentFile folder = DocumentFile.fromTreeUri(activity, uri);
+
+                    String filename = driveService.files().get(fileId).execute().getName();
+                    DocumentFile newfile = folder.createFile("text/plain", filename);
+
+                    String path = fileUtils.getPath(newfile.getUri());
 
                     // content
                     OutputStream outputStream = new ByteArrayOutputStream();
@@ -176,7 +185,12 @@ public class DriveExplorer {
         new Thread(new UploadFileThread(path)).start();
     }
 
-    public void downloadFile(String fileId, String path) {
-        new Thread(new DownloadFileThread(fileId, path)).start();
+    public void downloadFileRequest() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        activity.startActivityForResult(intent, REQUEST_CODE_DOWNLOAD_FILE);
+    }
+
+    public void downloadFile(String fileId, Uri uri) {
+        new Thread(new DownloadFileThread(fileId, uri)).start();
     }
 }

@@ -16,7 +16,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.documentfile.provider.DocumentFile;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -109,19 +108,10 @@ public class MainActivity extends AppCompatActivity {
             else {
                 Uri uri = resultData.getData();
                 if (requestCode == REQUEST_CODE_DOWNLOAD_FILE) {
-                    // TODO herausfinden ob Stack Overflow Loesung moeglich ist
-                    FileUtils fileUtils = new FileUtils(this);
-                    DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
-
-                    DocumentFile folder = DocumentFile.fromTreeUri(this, uri);
-                    DocumentFile newfile = folder.createFile("text/plain", "abc.txt");
-
-                    String path = fileUtils.getPath(newfile.getUri());
-                    driveExplorer.downloadFile("1YLXh9a20_S03Gote311QLAdH1WhIDGXt", path);
+                    driveExplorer.downloadFile("1YLXh9a20_S03Gote311QLAdH1WhIDGXt", uri); // todo dynamisch machen
                 }
 
                 else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
-                    DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
                     FileUtils fileUtils = new FileUtils(this);
                     String path = fileUtils.getPath(uri);
                     driveExplorer.uploadFile(path);
@@ -162,13 +152,14 @@ public class MainActivity extends AppCompatActivity {
                                     credential)
                                     .setApplicationName("Drive API Migration")
                                     .build();
+
+                    driveExplorer = new DriveExplorer(driveService, this);
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
 
     // Fuegt durch getFiles Methode vom Drive Explorer erhaltene Dateien ins UI ein
     public void loadCurDirecotry(String folderId) {
-        DriveExplorer driveExplorer = new DriveExplorer(driveService, this);
         driveExplorer.getFiles(folderId)
                 .addOnSuccessListener(files -> loadCurDirectoryHandler(files));
     }
