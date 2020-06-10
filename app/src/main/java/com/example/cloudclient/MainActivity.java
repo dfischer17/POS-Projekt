@@ -1,6 +1,7 @@
 package com.example.cloudclient;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -230,7 +231,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.context_delete:
-                //deleteFiles();
+                new AlertDialog.Builder(this)
+                        .setMessage("Do you really want to delete " + selectedFile.getName() + " ?")
+                        .setPositiveButton("delete", (dialog, which) -> driveExplorer.deleteFile(fileId))
+                        .setNegativeButton("cancel", null)
+                        .show();
+
                 break;
 
             default: Log.e(TAG, "Unguelitge Contextmenueauswahl!");
