@@ -13,8 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -205,16 +207,26 @@ public class MainActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
         File selectedFile = curDirectory.get(info.position);
+        String fileId = selectedFile.getId();
         int selectedAction = item.getItemId();
 
         switch (selectedAction) {
             case R.id.context_download:
-                String fileId = selectedFile.getId();
+
                 driveExplorer.downloadFileRequest(fileId);
                 break;
 
             case R.id.context_rename:
-                //rename();
+                final View dialogView = getLayoutInflater().inflate(R.layout.rename_file_dialog, null);
+                new AlertDialog.Builder(this)
+                        .setView(dialogView)
+                        .setPositiveButton("Rename", (dialog, which) -> {
+                            EditText renameEditText = dialogView.findViewById(R.id.renameEditText);
+                            String newFileName = renameEditText.getText().toString();
+                            driveExplorer.renameFile(fileId, newFileName);
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
                 break;
 
             case R.id.context_delete:
