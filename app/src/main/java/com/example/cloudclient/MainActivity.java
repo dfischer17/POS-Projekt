@@ -72,10 +72,6 @@ public class MainActivity extends AppCompatActivity {
         // init UI
         ListView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
 
-        // todo fuer Testzwecke später loeschen
-        Button startExplorerBtn = findViewById(R.id.startExplorerBtn);
-        startExplorerBtn.setOnClickListener(v -> loadCurDirecotry("root"));
-
         // Erlaubt durchlaufen des FileTrees
         curDirectoryLayout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -158,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
                                     .build();
 
                     driveExplorer = new DriveExplorer(driveService, this);
+                    loadCurDirecotry("root");
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
