@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private List<File> curDirectory = new ArrayList<>();
     private DriveContentAdapter driveContentAdapter;
     private FloatingActionButton cameraBtn;
+    private FloatingActionButton historyBtn;
     private List<TimelineItem> timelineItems;
     private String currentDate;
     private ListView lv;
@@ -119,6 +120,11 @@ public class MainActivity extends AppCompatActivity {
         timelineItems = new ArrayList<>();
         currentDate = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         lv = findViewById(R.id.timelineListView);
+        historyBtn = findViewById(R.id.historyBtn);
+        historyBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, Timeline.class);
+            startActivity(intent);
+        });
     }
 
     @Override
