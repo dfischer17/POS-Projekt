@@ -1,7 +1,6 @@
 package com.example.cloudclient;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -14,9 +13,10 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import androidx.annotation.NonNull;
@@ -37,7 +37,6 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,12 +56,15 @@ public class MainActivity extends AppCompatActivity {
     // File Management
     private List<File> curDirectory = new ArrayList<>();
     private DriveContentAdapter driveContentAdapter;
-    private FloatingActionButton cameraBtn;
-    private FloatingActionButton historyBtn;
     private List<TimelineItem> timelineItems;
     private String currentDate;
     private ListView lv;
     ArrayAdapter adapter;
+
+    private FloatingActionButton menueBtn, cameraBtn, historyBtn;
+    private Animation fab_open, fab_close, fab_clock, fab_anticlock;
+    Boolean isOpen = false;
+
 
     // Erledigt Drive-Befehle
     DriveExplorer driveExplorer;
@@ -112,15 +114,42 @@ public class MainActivity extends AppCompatActivity {
         driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
         curDirectoryLayout.setAdapter(driveContentAdapter);
 
-        //Camera
-        cameraBtn = findViewById(R.id.cameraBtn);
-        cameraBtn.setOnClickListener(v -> takePhoto());
+
+
 
         //Timeline
         timelineItems = new ArrayList<>();
         currentDate = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         lv = findViewById(R.id.timelineListView);
+
+
+        menueBtn = findViewById(R.id.menueFabBtn);
+        cameraBtn = findViewById(R.id.cameraBtn);
         historyBtn = findViewById(R.id.historyBtn);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fab_clock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_clock);
+        fab_anticlock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_anticlock);
+
+        menueBtn.setOnClickListener(v -> {
+                if (isOpen) {
+                    cameraBtn.startAnimation(fab_close);
+                    historyBtn.startAnimation(fab_close);
+                    menueBtn.startAnimation(fab_anticlock);
+                    cameraBtn.setClickable(false);
+                    historyBtn.setClickable(false);
+                    isOpen = false;
+                } else {
+                    cameraBtn.startAnimation(fab_open);
+                    historyBtn.startAnimation(fab_open);
+                    menueBtn.startAnimation(fab_clock);
+                    cameraBtn.setClickable(true);
+                    historyBtn.setClickable(true);
+                    isOpen = true;
+                }
+        });
+
+        cameraBtn.setOnClickListener(v -> takePhoto());
         historyBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, Timeline.class);
             startActivity(intent);
