@@ -50,4 +50,5 @@ dependencies {
     implementation('com.google.apis:google-api-services-drive:v3-rev136-1.25.0') {
         exclude group: 'org.apache.httpcomponents'
     }
+    implementation 'androidx.documentfile:documentfile:1.0.1'
 }

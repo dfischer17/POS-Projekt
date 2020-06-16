@@ -8,4 +8,16 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="LightTheme" parent="AppTheme">
+        <item name="textColor">#000000</item>
+        <item name="buttonColor">#808080</item>
+        <item name="bgColor">#ffffff</item>
+    </style>
+
+    <style name="DarkTheme" parent="AppTheme">
+        <item name="textColor">#00BFFF</item>
+        <item name="buttonColor">#808080</item>
+        <item name="bgColor">#333333</item>
+    </style>
+
 </resources>
