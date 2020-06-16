@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 // Ueberpruefen ob Auswahl ein Ordner ist
                 if (clickedFolder.getMimeType().equals(DriveExplorer.folderMimeType)) {
                     // Unterordner laden
-                    loadCurDirecotry(clickedFolder.getId());
+                    driveExplorer.getFiles(clickedFolder.getId());
                 }
             }
         });
@@ -154,15 +154,9 @@ public class MainActivity extends AppCompatActivity {
                                     .build();
 
                     driveExplorer = new DriveExplorer(driveService, this);
-                    loadCurDirecotry("root");
+                    driveExplorer.getFiles("root");
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
-    }
-
-    // Fuegt durch getFiles Methode vom Drive Explorer erhaltene Dateien ins UI ein
-    public void loadCurDirecotry(String folderId) {
-        driveExplorer.getFiles(folderId)
-                .addOnSuccessListener(files -> loadCurDirectoryHandler(files));
     }
 
     public void upload() {
@@ -247,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Helper
-    private void loadCurDirectoryHandler(List<File> files) {
+    public void loadCurDirectoryHandler(List<File> files) {
         curDirectory.clear();
         curDirectory.addAll(files);
         driveContentAdapter.notifyDataSetChanged();

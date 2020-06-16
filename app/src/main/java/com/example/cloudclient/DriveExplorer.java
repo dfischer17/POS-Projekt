@@ -12,6 +12,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.example.cloudclient.asyncTasks.DeleteTask;
 import com.example.cloudclient.asyncTasks.DownloadTask;
+import com.example.cloudclient.asyncTasks.GetFilesTask;
 import com.example.cloudclient.asyncTasks.RenameTask;
 import com.example.cloudclient.asyncTasks.UploadTask;
 import com.google.android.gms.tasks.Task;
@@ -37,30 +38,18 @@ public class DriveExplorer {
     // Google Drive API
     private Drive driveService;
 
-    private Activity activity;
+    private MainActivity activity;
 
     public String lastDownloadId = ""; // todo bessere Loesung finden
 
-    public DriveExplorer(Drive driveService, Activity activity) {
+    public DriveExplorer(Drive driveService, MainActivity activity) {
         this.driveService = driveService;
         this.activity = activity;
     }
 
-    // Gibt einen Task zurueck, welcher Dateien aus Verzeichnis laedt
-    public Task<List<File>> getFiles(String folderId) {
-        final Executor mExecutor = Executors.newSingleThreadExecutor();
-        return Tasks.call(mExecutor, () -> {
-            FileList fileList = null;
-            try {
-                fileList = driveService.files().list().setQ("'" + folderId + "' in parents").execute();
-                List<File> curDirectoryFiles = fileList.getFiles();
-                return curDirectoryFiles;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        });
+    public void getFiles(String folderId) {
+        GetFilesTask getFilesTask = new GetFilesTask(driveService, activity);
+        getFilesTask.execute(folderId);
     }
 
     public void deleteFile(String fileId) {
@@ -76,7 +65,6 @@ public class DriveExplorer {
     public void uploadFile(String path) {
         UploadTask uploadTask = new UploadTask(driveService);
         uploadTask.execute(path);
-
     }
 
     public void downloadFileRequest(String fileId) {
