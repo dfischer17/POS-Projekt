@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.example.cloudclient.asyncTasks.DeleteTask;
+import com.example.cloudclient.asyncTasks.RenameTask;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.http.FileContent;
@@ -167,7 +168,8 @@ public class DriveExplorer {
     }
 
     public void renameFile(String fileId, String filename) {
-        new Thread(new RenameFileThread(fileId, filename)).start();
+        RenameTask renameTask = new RenameTask(driveService);
+        renameTask.execute(fileId, filename);
     }
 
     public void uploadFile(String path) {
