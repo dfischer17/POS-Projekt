@@ -1,14 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingBottom="10dp"
+    android:paddingTop="10dp"
+    >
+
+
+    <ImageView
+        android:id="@+id/iconListItem"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_weight="1"
+        app:srcCompat="@drawable/ic_file" />
 
     <TextView
         android:id="@+id/fileNameListitem"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_height="25dp"
+        android:layout_weight="2"
+        android:gravity="center_vertical"
+        android:text="Text"
+        android:textAlignment="gravity"
+        android:textAllCaps="false"
         android:textColor="#000"
-        android:text="Text"/>
+        android:paddingLeft="10dp"
+        android:textSize="18dp" />
+
 
 </LinearLayout>

@@ -50,6 +50,8 @@ public class Timeline extends AppCompatActivity {
             startActivity(intent);
         });
 
+
+
         timelineItems = new ArrayList<>();
         //init UI
         listViewTimeline = findViewById(R.id.timelineListView);
