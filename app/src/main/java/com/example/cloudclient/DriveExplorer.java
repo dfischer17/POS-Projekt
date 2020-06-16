@@ -9,6 +9,8 @@ import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
+
+import com.example.cloudclient.asyncTasks.DeleteTask;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.http.FileContent;
@@ -39,24 +41,6 @@ public class DriveExplorer {
     public DriveExplorer(Drive driveService, Activity activity) {
         this.driveService = driveService;
         this.activity = activity;
-    }
-
-    // Loescht eine bestimmte Datei
-    private class DeleteFileThread implements Runnable {
-        private String fileId;
-
-        public DeleteFileThread(String fileId) {
-            this.fileId = fileId;
-        }
-
-        @Override
-        public void run() {
-            try {
-                driveService.files().delete(fileId).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     // Aendert den Namen einer bestimmten Datei
@@ -178,7 +162,8 @@ public class DriveExplorer {
     }
 
     public void deleteFile(String fileId) {
-        new Thread(new DeleteFileThread(fileId)).start();
+        DeleteTask deleteTask = new DeleteTask(driveService);
+        deleteTask.execute(fileId);
     }
 
     public void renameFile(String fileId, String filename) {
