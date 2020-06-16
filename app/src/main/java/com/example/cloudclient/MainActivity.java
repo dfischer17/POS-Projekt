@@ -19,6 +19,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,19 +37,26 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final int REQUEST_CODE_DOWNLOAD_FILE = 2;
     private static final int REQUEST_CODE_UPLOAD_FILE = 3;
-    private static final int IMAGE_REQUEST = 1;
 
     // Google Drive API
     Drive driveService;
@@ -56,18 +64,21 @@ public class MainActivity extends AppCompatActivity {
     // File Management
     private List<File> curDirectory = new ArrayList<>();
     private DriveContentAdapter driveContentAdapter;
-    private List<TimelineItem> timelineItems;
-    private String currentDate;
-    private ListView lv;
-    ArrayAdapter adapter;
 
+    //Project Activity Screen
+
+
+    //History and Camera Menue Items
     private FloatingActionButton menueBtn, cameraBtn, historyBtn;
     private Animation fab_open, fab_close, fab_clock, fab_anticlock;
     Boolean isOpen = false;
 
+    //Timeline
 
     // Erledigt Drive-Befehle
     DriveExplorer driveExplorer;
+
+    //Camera
     private String currentImagePath = null;
 
     @Override
@@ -115,14 +126,7 @@ public class MainActivity extends AppCompatActivity {
         curDirectoryLayout.setAdapter(driveContentAdapter);
 
 
-
-
-        //Timeline
-        timelineItems = new ArrayList<>();
-        currentDate = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        lv = findViewById(R.id.timelineListView);
-
-
+        //Menue Camera and History Button
         menueBtn = findViewById(R.id.menueFabBtn);
         cameraBtn = findViewById(R.id.cameraBtn);
         historyBtn = findViewById(R.id.historyBtn);
@@ -132,21 +136,21 @@ public class MainActivity extends AppCompatActivity {
         fab_anticlock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_anticlock);
 
         menueBtn.setOnClickListener(v -> {
-                if (isOpen) {
-                    cameraBtn.startAnimation(fab_close);
-                    historyBtn.startAnimation(fab_close);
-                    menueBtn.startAnimation(fab_anticlock);
-                    cameraBtn.setClickable(false);
-                    historyBtn.setClickable(false);
-                    isOpen = false;
-                } else {
-                    cameraBtn.startAnimation(fab_open);
-                    historyBtn.startAnimation(fab_open);
-                    menueBtn.startAnimation(fab_clock);
-                    cameraBtn.setClickable(true);
-                    historyBtn.setClickable(true);
-                    isOpen = true;
-                }
+            if (isOpen) {
+                cameraBtn.startAnimation(fab_close);
+                historyBtn.startAnimation(fab_close);
+                menueBtn.startAnimation(fab_anticlock);
+                cameraBtn.setClickable(false);
+                historyBtn.setClickable(false);
+                isOpen = false;
+            } else {
+                cameraBtn.startAnimation(fab_open);
+                historyBtn.startAnimation(fab_open);
+                menueBtn.startAnimation(fab_clock);
+                cameraBtn.setClickable(true);
+                historyBtn.setClickable(true);
+                isOpen = true;
+            }
         });
 
         cameraBtn.setOnClickListener(v -> takePhoto());
@@ -154,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, Timeline.class);
             startActivity(intent);
         });
+
     }
 
     @Override
@@ -171,9 +176,7 @@ public class MainActivity extends AppCompatActivity {
                 if (requestCode == REQUEST_CODE_DOWNLOAD_FILE) {
                     String fileId = driveExplorer.lastDownloadId; //resultData.getStringExtra("id"); todo bessere Loesung finden
                     driveExplorer.downloadFile(fileId, uri);
-                }
-
-                else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
+                } else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
                     FileUtils fileUtils = new FileUtils(this);
                     String path = fileUtils.getPath(uri);
                     driveExplorer.uploadFile(path);
@@ -269,11 +272,13 @@ public class MainActivity extends AppCompatActivity {
         File selectedFile = curDirectory.get(info.position);
         String fileId = selectedFile.getId();
         int selectedAction = item.getItemId();
+        LocalDateTime ldt = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
         switch (selectedAction) {
             case R.id.context_download:
                 driveExplorer.downloadFileRequest(fileId);
-                timelineItems.add(new TimelineItem(selectedFile.getDescription() + " downloaded", currentDate));
+                writeToFile(new TimelineItem(selectedFile.getName(), ldt, DriveAction.valueOf("DOWNLOAD")));
                 break;
 
             case R.id.context_rename:
@@ -286,10 +291,11 @@ public class MainActivity extends AppCompatActivity {
                             driveExplorer.renameFile(fileId, newFileName);
                             curDirectory.get(info.position).setName(newFileName);
                             updateUI();
+                            writeToFile(new TimelineItem(selectedFile.getName(), ldt, DriveAction.valueOf("RENAME")));
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
-                timelineItems.add(new TimelineItem(selectedFile.getDescription() + " renamed", currentDate));
+
                 break;
 
             case R.id.context_delete:
@@ -299,15 +305,16 @@ public class MainActivity extends AppCompatActivity {
                             driveExplorer.deleteFile(fileId);
                             curDirectory.remove(selectedFile);
                             updateUI();
+                            writeToFile(new TimelineItem(selectedFile.getName(), ldt, DriveAction.valueOf("DELETE")));
                         })
                         .setNegativeButton("cancel", null)
                         .show();
-                timelineItems.add(new TimelineItem(selectedFile.getDescription() + " deleted", currentDate));
+
                 break;
 
-            default: Log.e(TAG, "Unguelitge Contextmenueauswahl!");
+            default:
+                Log.e(TAG, "Unguelitge Contextmenueauswahl!");
         }
-        adapter = new ArrayAdapter(this, R.layout.list_item, timelineItems);
 
         return super.onContextItemSelected(item);
     }
@@ -324,10 +331,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Camera
-    private void takePhoto(){
+    private void takePhoto() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        if(cameraIntent.resolveActivity(getPackageManager()) != null){
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
             java.io.File imageFile = null;
 
             try {
@@ -336,10 +343,10 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            if(imageFile != null){
-                Uri imageUri = FileProvider.getUriForFile(this, "com.example.cloudclient.fileprovider",imageFile);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
-                startActivityForResult(cameraIntent, IMAGE_REQUEST);
+            if (imageFile != null) {
+                Uri imageUri = FileProvider.getUriForFile(this, "com.example.cloudclient.fileprovider", imageFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                startActivity(cameraIntent);
             }
         }
     }
@@ -354,5 +361,15 @@ public class MainActivity extends AppCompatActivity {
         return imageFile;
     }
 
-
+    public void writeToFile(TimelineItem input) {
+        try {
+            FileOutputStream fos = openFileOutput("timeline.txt", MODE_PRIVATE | MODE_APPEND);
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(fos));
+            out.println(input.toCSVString());
+            out.flush();
+            out.close();
+        } catch (FileNotFoundException exp) {
+            Log.d(TAG, exp.getStackTrace().toString());
+        }
+    }
 }
