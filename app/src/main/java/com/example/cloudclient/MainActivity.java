@@ -5,19 +5,20 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.os.Environment;
 import android.preference.PreferenceManager;
-
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.Scope;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.json.gson.GsonFactory;
@@ -34,8 +36,14 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -54,27 +62,39 @@ public class MainActivity extends AppCompatActivity {
     private List<File> curDirectory = new ArrayList<>();
     private DriveContentAdapter driveContentAdapter;
 
+    private SharedPreferences prefs;
+    private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
+
+    //History and Camera Menue Items
+    private FloatingActionButton menueBtn, cameraBtn, historyBtn;
+    private Animation fab_open, fab_close, fab_clock, fab_anticlock;
+    Boolean isOpen = false;
+
     // Erledigt Drive-Befehle
     DriveExplorer driveExplorer;
 
+
+    //Camera
     private String currentImagePath = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         // Authentication
         requestSignIn();
 
         // Preferences
-        SharedPreferences prefs;
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        preferencesChangeListener = (sharedPrefs, key) -> preferenceChanged(sharedPrefs, key);
+        prefs.registerOnSharedPreferenceChangeListener(preferencesChangeListener);
         String theme = prefs.getString("theme", "lightTheme");
-        if (theme.equals("darkTheme")) {
+
+        if(theme.equals("darkTheme")) {
             setTheme(R.style.DarkTheme);
             setContentView(R.layout.activity_main);
-        } else if (theme.equals("lightTheme")) {
+        }
+        else if(theme.equals("lightTheme")){
             setTheme(R.style.LightTheme);
             setContentView(R.layout.activity_main);
         }
@@ -102,6 +122,40 @@ public class MainActivity extends AppCompatActivity {
         // Adapter
         driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
         curDirectoryLayout.setAdapter(driveContentAdapter);
+
+        //Menue Camera and History Button
+        menueBtn = findViewById(R.id.menueFabBtn);
+        cameraBtn = findViewById(R.id.cameraBtn);
+        historyBtn = findViewById(R.id.historyBtn);
+        fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
+        fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
+        fab_clock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_clock);
+        fab_anticlock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_anticlock);
+
+        menueBtn.setOnClickListener(v -> {
+            if (isOpen) {
+                cameraBtn.startAnimation(fab_close);
+                historyBtn.startAnimation(fab_close);
+                menueBtn.startAnimation(fab_anticlock);
+                cameraBtn.setClickable(false);
+                historyBtn.setClickable(false);
+                isOpen = false;
+            } else {
+                cameraBtn.startAnimation(fab_open);
+                historyBtn.startAnimation(fab_open);
+                menueBtn.startAnimation(fab_clock);
+                cameraBtn.setClickable(true);
+                historyBtn.setClickable(true);
+                isOpen = true;
+            }
+        });
+
+        cameraBtn.setOnClickListener(v -> takePhoto());
+        historyBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, Timeline.class);
+            startActivity(intent);
+        });
+
     }
 
     @Override
@@ -119,9 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 if (requestCode == REQUEST_CODE_DOWNLOAD_FILE) {
                     String fileId = driveExplorer.lastDownloadId; //resultData.getStringExtra("id"); todo bessere Loesung finden
                     driveExplorer.downloadFile(fileId, uri);
-                }
-
-                else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
+                } else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
                     FileUtils fileUtils = new FileUtils(this);
                     String path = fileUtils.getPath(uri);
                     driveExplorer.uploadFile(path);
@@ -211,10 +263,13 @@ public class MainActivity extends AppCompatActivity {
         File selectedFile = curDirectory.get(info.position);
         String fileId = selectedFile.getId();
         int selectedAction = item.getItemId();
+        LocalDateTime ldt = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
         switch (selectedAction) {
             case R.id.context_download:
                 driveExplorer.downloadFileRequest(fileId);
+                writeToFile(new TimelineItem(selectedFile.getName(), ldt, DriveAction.valueOf("DOWNLOAD")));
                 break;
 
             case R.id.context_rename:
@@ -227,9 +282,11 @@ public class MainActivity extends AppCompatActivity {
                             driveExplorer.renameFile(fileId, newFileName);
                             curDirectory.get(info.position).setName(newFileName);
                             updateUI();
+                            writeToFile(new TimelineItem(selectedFile.getName(), ldt, DriveAction.valueOf("RENAME")));
                         })
                         .setNegativeButton("Cancel", null)
                         .show();
+
                 break;
 
             case R.id.context_delete:
@@ -239,12 +296,15 @@ public class MainActivity extends AppCompatActivity {
                             driveExplorer.deleteFile(fileId);
                             curDirectory.remove(selectedFile);
                             updateUI();
+                            writeToFile(new TimelineItem(selectedFile.getName(), ldt, DriveAction.valueOf("DELETE")));
                         })
                         .setNegativeButton("cancel", null)
                         .show();
+
                 break;
 
-            default: Log.e(TAG, "Unguelitge Contextmenueauswahl!");
+            default:
+                Log.e(TAG, "Unguelitge Contextmenueauswahl!");
         }
 
         return super.onContextItemSelected(item);
@@ -261,10 +321,12 @@ public class MainActivity extends AppCompatActivity {
         driveContentAdapter.notifyDataSetChanged();
     }
 
-    private void takePhoto(){
+
+    //Camera
+    private void takePhoto() {
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
-        if(cameraIntent.resolveActivity(getPackageManager()) != null){
+        if (cameraIntent.resolveActivity(getPackageManager()) != null) {
             java.io.File imageFile = null;
 
             try {
@@ -273,9 +335,9 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            if(imageFile != null){
-                Uri imageUri = FileProvider.getUriForFile(this, "com.example.cloudclient.fileprovider",imageFile);
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,imageUri);
+            if (imageFile != null) {
+                Uri imageUri = FileProvider.getUriForFile(this, "com.example.cloudclient.fileprovider", imageFile);
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 startActivity(cameraIntent);
             }
         }
@@ -289,5 +351,22 @@ public class MainActivity extends AppCompatActivity {
         java.io.File imageFile = java.io.File.createTempFile(imageName, ".jpg", storageDir);
         currentImagePath = imageFile.getAbsolutePath();
         return imageFile;
+    }
+
+    public void writeToFile(TimelineItem input) {
+        try {
+            FileOutputStream fos = openFileOutput("timeline.txt", MODE_PRIVATE | MODE_APPEND);
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(fos));
+            out.println(input.toCSVString());
+            out.flush();
+            out.close();
+        } catch (FileNotFoundException exp) {
+            Log.d(TAG, exp.getStackTrace().toString());
+        }
+    }
+
+    private void preferenceChanged(SharedPreferences sharedPrefs, String key){
+        Intent mIntent = new Intent(this, MainActivity.class);
+        startActivity(mIntent);
     }
 }

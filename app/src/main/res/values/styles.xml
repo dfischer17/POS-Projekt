@@ -8,16 +8,22 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="LightTheme" parent="AppTheme">
+    <style name="LightTheme" parent="Theme.AppCompat.Light">
         <item name="textColor">#000000</item>
-        <item name="buttonColor">#808080</item>
+        <item name="settingButtonColor">#000000</item>
         <item name="bgColor">#ffffff</item>
+        <item name="menueButtonColor">#ffffff</item>
+        <item name="buttonColor">#000000</item>
+        <item name="buttonTextColor">#ffffff</item>
     </style>
 
-    <style name="DarkTheme" parent="AppTheme">
-        <item name="textColor">#00BFFF</item>
-        <item name="buttonColor">#808080</item>
+    <style name="DarkTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
+        <item name="textColor">#ffffff</item>
+        <item name="settingButtonColor">#ffffff</item>
         <item name="bgColor">#333333</item>
+        <item name="menueButtonColor">#000000</item>
+        <item name="buttonColor">#ffffff</item>
+        <item name="buttonTextColor">#000000</item>
     </style>
 
 </resources>

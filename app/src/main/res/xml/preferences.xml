@@ -8,7 +8,6 @@
             android:entryValues="@array/themevalues"
             android:key="theme"
             android:title="Theme" />
-
     </PreferenceCategory>
 
 </PreferenceScreen>
