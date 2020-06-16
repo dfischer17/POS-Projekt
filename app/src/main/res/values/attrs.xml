@@ -2,5 +2,8 @@
 <resources>
         <attr name="bgColor" format="color"/>
         <attr name="textColor" format="color"/>
+        <attr name="settingButtonColor" format="color"/>
+        <attr name="menueButtonColor" format="color"/>
         <attr name="buttonColor" format="color"/>
+        <attr name="buttonTextColor" format="color"/>
 </resources>

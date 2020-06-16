@@ -3,6 +3,7 @@ package com.example.cloudclient;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -66,15 +67,13 @@ public class MainActivity extends AppCompatActivity {
     private List<File> curDirectory = new ArrayList<>();
     private DriveContentAdapter driveContentAdapter;
 
-    //Project Activity Screen
-
+    private SharedPreferences prefs;
+    private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
 
     //History and Camera Menue Items
     private FloatingActionButton menueBtn, cameraBtn, historyBtn;
     private Animation fab_open, fab_close, fab_clock, fab_anticlock;
     Boolean isOpen = false;
-
-    //Timeline
 
     // Erledigt Drive-Befehle
     DriveExplorer driveExplorer;
@@ -85,19 +84,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         // Authentication
         requestSignIn();
 
         // Preferences
-        SharedPreferences prefs;
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        preferencesChangeListener = (sharedPrefs, key) -> preferenceChanged(sharedPrefs, key);
+        prefs.registerOnSharedPreferenceChangeListener(preferencesChangeListener);
         String theme = prefs.getString("theme", "lightTheme");
-        if (theme.equals("darkTheme")) {
+
+        if(theme.equals("darkTheme")) {
             setTheme(R.style.DarkTheme);
             setContentView(R.layout.activity_main);
-        } else if (theme.equals("lightTheme")) {
+        }
+        else if(theme.equals("lightTheme")){
             setTheme(R.style.LightTheme);
             setContentView(R.layout.activity_main);
         }
@@ -125,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
         // Adapter
         driveContentAdapter = new DriveContentAdapter(curDirectory, R.layout.list_item, this);
         curDirectoryLayout.setAdapter(driveContentAdapter);
-
 
         //Menue Camera and History Button
         menueBtn = findViewById(R.id.menueFabBtn);
@@ -274,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
         String fileId = selectedFile.getId();
         int selectedAction = item.getItemId();
         LocalDateTime ldt = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
         switch (selectedAction) {
             case R.id.context_download:
@@ -372,5 +372,10 @@ public class MainActivity extends AppCompatActivity {
         } catch (FileNotFoundException exp) {
             Log.d(TAG, exp.getStackTrace().toString());
         }
+    }
+
+    private void preferenceChanged(SharedPreferences sharedPrefs, String key){
+        Intent mIntent = new Intent(this, MainActivity.class);
+        startActivity(mIntent);
     }
 }

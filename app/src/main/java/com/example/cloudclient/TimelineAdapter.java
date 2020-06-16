@@ -28,7 +28,7 @@ public class TimelineAdapter extends BaseAdapter {
         this.timeline = timeline;
         this.layoutId = layoutId;
         this.inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
-        formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     }
 
     @Override

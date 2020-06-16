@@ -13,7 +13,7 @@ public class TimelineItem {
         this.description = description;
         this.currentDate = currentDate;
         this.driveAction = driveAction;
-        formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
     }
 
     public String getDescription() {
