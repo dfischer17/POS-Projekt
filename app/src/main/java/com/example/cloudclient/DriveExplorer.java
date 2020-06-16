@@ -12,6 +12,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.example.cloudclient.asyncTasks.DeleteTask;
 import com.example.cloudclient.asyncTasks.RenameTask;
+import com.example.cloudclient.asyncTasks.UploadTask;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.http.FileContent;
@@ -42,61 +43,6 @@ public class DriveExplorer {
     public DriveExplorer(Drive driveService, Activity activity) {
         this.driveService = driveService;
         this.activity = activity;
-    }
-
-    // Aendert den Namen einer bestimmten Datei
-    private class RenameFileThread implements Runnable {
-        private String fileId;
-        private String filename;
-
-        public RenameFileThread(String fileId, String filename) {
-            this.fileId = fileId;
-            this.filename = filename;
-        }
-
-        @Override
-        public void run() {
-            // Google Drive benötigt ein leeres File zum updaten/umbenennen
-            File temp = new File();
-            temp.setName(filename);
-
-            try {
-                // Altes File mit Informationen aus neuem updaten
-                driveService.files().update(fileId, temp).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    // Uploaded eine Datei
-    private class UploadFileThread implements Runnable {
-        private String path;
-
-        public UploadFileThread(String path) {
-            this.path = path;
-        }
-
-        @Override
-        public void run() {
-            // Pfad der Datei
-            java.io.File filePath = new java.io.File(path);
-
-            // Information ueber Datei
-            String filename = filePath.getName();
-            File fileMetadata = new File();
-            fileMetadata.setName(filename);
-
-            // Inhalt der Datei
-            FileContent mediaContent = new FileContent("text/plain", filePath);
-            try {
-                driveService.files().create(fileMetadata, mediaContent)
-                        .setFields("id")
-                        .execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     // Downloaded eine Datei
@@ -173,7 +119,9 @@ public class DriveExplorer {
     }
 
     public void uploadFile(String path) {
-        new Thread(new UploadFileThread(path)).start();
+        UploadTask uploadTask = new UploadTask(driveService);
+        uploadTask.execute(path);
+
     }
 
     public void downloadFileRequest(String fileId) {
