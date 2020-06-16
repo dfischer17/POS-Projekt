@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.example.cloudclient.asyncTasks.DeleteTask;
+import com.example.cloudclient.asyncTasks.DownloadTask;
 import com.example.cloudclient.asyncTasks.RenameTask;
 import com.example.cloudclient.asyncTasks.UploadTask;
 import com.google.android.gms.tasks.Task;
@@ -43,52 +44,6 @@ public class DriveExplorer {
     public DriveExplorer(Drive driveService, Activity activity) {
         this.driveService = driveService;
         this.activity = activity;
-    }
-
-    // Downloaded eine Datei
-    private class DownloadFileThread implements Runnable {
-        private String fileId;
-        private Uri uri;
-
-        public DownloadFileThread(String fileId, Uri uri) {
-            this.fileId = fileId;
-            this.uri = uri;
-        }
-
-        @Override
-        public void run() {
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                    PackageManager.PERMISSION_GRANTED) {
-
-                try {
-                    FileUtils fileUtils = new FileUtils(activity);
-                    DocumentFile folder = DocumentFile.fromTreeUri(activity, uri);
-
-                    String filename = driveService.files().get(fileId).execute().getName();
-                    DocumentFile newfile = folder.createFile("text/plain", filename);
-
-                    String path = fileUtils.getPath(newfile.getUri());
-
-                    // content
-                    OutputStream outputStream = new ByteArrayOutputStream();
-                    driveService.files().get(fileId)
-                            .executeMediaAndDownloadTo(outputStream);
-                    String filecontent = outputStream.toString();
-
-                    // create file
-                    FileOutputStream fos = new FileOutputStream(path);
-                    byte[] buffer = filecontent.getBytes();
-                    fos.write(buffer, 0, buffer.length);
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-            } else {
-                requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            }
-        }
     }
 
     // Gibt einen Task zurueck, welcher Dateien aus Verzeichnis laedt
@@ -132,6 +87,7 @@ public class DriveExplorer {
     }
 
     public void downloadFile(String fileId, Uri uri) {
-        new Thread(new DownloadFileThread(fileId, uri)).start();
+        DownloadTask downloadTask = new DownloadTask(driveService, activity);
+        downloadTask.execute(fileId, uri);
     }
 }
