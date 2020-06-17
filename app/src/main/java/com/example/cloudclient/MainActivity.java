@@ -25,6 +25,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
+import com.example.cloudclient.asyncTasks.LoadParentDirectoryTask;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -91,11 +92,10 @@ public class MainActivity extends AppCompatActivity {
         prefs.registerOnSharedPreferenceChangeListener(preferencesChangeListener);
         String theme = prefs.getString("theme", "lightTheme");
 
-        if(theme.equals("darkTheme")) {
+        if (theme.equals("darkTheme")) {
             setTheme(R.style.DarkTheme);
             setContentView(R.layout.activity_main);
-        }
-        else if(theme.equals("lightTheme")){
+        } else if (theme.equals("lightTheme")) {
             setTheme(R.style.LightTheme);
             setContentView(R.layout.activity_main);
         }
@@ -111,6 +111,13 @@ public class MainActivity extends AppCompatActivity {
 
                 // Ueberpruefen ob Auswahl ein Ordner ist
                 if (clickedFolder.getMimeType().equals(DriveExplorer.folderMimeType)) {
+
+                    // Ueberordner laden
+                    if (clickedFolder.getName().equals("Back")) {
+                        LoadParentDirectoryTask loadParentDirectory = new LoadParentDirectoryTask(driveService, driveExplorer);
+                        loadParentDirectory.execute(clickedFolder.getId());
+                    }
+
                     // Unterordner laden
                     driveExplorer.getFiles(clickedFolder.getId());
                 }
@@ -314,8 +321,20 @@ public class MainActivity extends AppCompatActivity {
     // Helper
     public void loadCurDirectoryHandler(List<File> files) {
         curDirectory.clear();
-        curDirectory.addAll(files);
-        driveContentAdapter.notifyDataSetChanged();
+
+        // Irgendeine fileId des aktuellen Verzeichnisses herausfinden
+        if (files != null && files.size() >= 1) {
+            String randomFileId = files.get(0).getId();
+
+            // Zurueck Button
+            curDirectory.add(new File().setName("Back").setId(randomFileId).setMimeType(DriveExplorer.folderMimeType));
+
+            // Sonstige Dateien
+            curDirectory.addAll(files);
+            driveContentAdapter.notifyDataSetChanged();
+        }
+
+
     }
 
     private void updateUI() {
@@ -366,7 +385,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void preferenceChanged(SharedPreferences sharedPrefs, String key){
+    private void preferenceChanged(SharedPreferences sharedPrefs, String key) {
         Intent mIntent = new Intent(this, MainActivity.class);
         startActivity(mIntent);
     }
