@@ -1,7 +1,9 @@
 package com.example.cloudclient.asyncTasks;
 
 import android.os.AsyncTask;
+import android.view.View;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import com.example.cloudclient.MainActivity;
 import com.example.cloudclient.R;
@@ -15,10 +17,18 @@ import java.util.List;
 public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
     Drive driveService;
     private MainActivity activity;
+    ProgressBar progressBar;
 
     public GetFilesTask(Drive driveService, MainActivity activity) {
         this.driveService = driveService;
         this.activity = activity;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        // Ladebildschirm anzeigen
+        progressBar = activity.findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -40,6 +50,9 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
     @Override
     protected void onPostExecute(List<File> files) {
         activity.loadCurDirectoryHandler(files);
+
+        // Ladebildschirm ausblenden
+        progressBar.setVisibility(View.GONE);
         super.onPostExecute(files);
     }
 }
