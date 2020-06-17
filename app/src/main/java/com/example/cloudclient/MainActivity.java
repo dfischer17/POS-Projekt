@@ -17,6 +17,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // init UI
-        ListView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
+        GridView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
 
         // Erlaubt durchlaufen des FileTrees
         curDirectoryLayout.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -17,8 +17,7 @@
             android:id="@+id/iconListItem"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/ic_file" />
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/fileNameListitem"

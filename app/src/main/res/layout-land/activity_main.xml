@@ -13,6 +13,7 @@
         android:id="@+id/curDirectoryListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/bgColor"></GridView>
+        android:background="?attr/bgColor"
+        android:numColumns="2"></GridView>
     <include layout="@layout/content_main"/>
 </RelativeLayout>

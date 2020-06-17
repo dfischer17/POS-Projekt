@@ -16,6 +16,7 @@ public class DriveContentAdapter extends BaseAdapter {
     private List<File> curDirectory;
     private int layoutId;
     private LayoutInflater inflater;
+    ImageView iv;
 
     public DriveContentAdapter(List<File> curDirectory, int layoutId, Context context) {
         this.curDirectory = curDirectory;
@@ -43,6 +44,12 @@ public class DriveContentAdapter extends BaseAdapter {
         File file = curDirectory.get(position);
         View listItem = (convertView == null) ? inflater.inflate(this.layoutId, null) : convertView;
         ((TextView) listItem.findViewById(R.id.fileNameListitem)).setText(file.getName());
+        if (file.getMimeType().equals(DriveExplorer.folderMimeType)){
+            listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_folder);
+        }
+        else {
+            listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_file);
+        }
         return listItem;
     }
 }

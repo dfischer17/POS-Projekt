@@ -7,27 +7,19 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
+import android.widget.GridView;
 import android.widget.ListView;
-
-import com.google.api.services.drive.Drive;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class Timeline extends AppCompatActivity {
     private static final String TAG = "timeline";
@@ -41,7 +33,7 @@ public class Timeline extends AppCompatActivity {
 
     //Timeline Items
     private List<TimelineItem> timelineItems;
-    private ListView listViewTimeline;
+    private GridView listViewTimeline;
     ListView lv;
     TimelineAdapter timelineAdapter;
 
@@ -67,7 +59,7 @@ public class Timeline extends AppCompatActivity {
 
         timelineItems = new ArrayList<>();
         //init UI
-        listViewTimeline = findViewById(R.id.listView);
+        listViewTimeline = findViewById(R.id.timelineListView);
         timelineAdapter = new TimelineAdapter(timelineItems, R.layout.timeline_item, this);
         listViewTimeline.setAdapter(timelineAdapter);
         //load History
