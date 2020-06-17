@@ -44,7 +44,10 @@ public class DriveContentAdapter extends BaseAdapter {
         File file = curDirectory.get(position);
         View listItem = (convertView == null) ? inflater.inflate(this.layoutId, null) : convertView;
         ((TextView) listItem.findViewById(R.id.fileNameListitem)).setText(file.getName());
-        if (file.getMimeType().equals(DriveExplorer.folderMimeType)){
+        if(file.getName().equals("Back")){
+            listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_arrow_back);
+        }
+        else if (file.getMimeType().equals(DriveExplorer.folderMimeType)){
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_folder);
         }
         else {
