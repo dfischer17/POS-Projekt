@@ -37,7 +37,7 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
 
         FileList fileList = null;
         try {
-            fileList = driveService.files().list().setQ("'" + folderId + "' in parents").execute();
+            fileList = driveService.files().list().setQ("'" + folderId + "' in parents and trashed = false").execute();
             List<File> curDirectoryFiles = fileList.getFiles();
             return curDirectoryFiles;
         } catch (IOException e) {
