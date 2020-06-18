@@ -18,7 +18,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // Unterordner laden
-                    driveExplorer.getFiles(clickedFolder.getId());
+                    driveExplorer.loadFilesIntoUI(clickedFolder.getId());
                 }
             }
         });
@@ -224,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
                                     .build();
 
                     driveExplorer = new DriveExplorer(driveService, this);
-                    driveExplorer.getFiles("root");
+                    driveExplorer.loadFilesIntoUI("root");
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
@@ -340,7 +339,6 @@ public class MainActivity extends AppCompatActivity {
     private void updateUI() {
         driveContentAdapter.notifyDataSetChanged();
     }
-
 
     //Camera
     private void takePhoto() {

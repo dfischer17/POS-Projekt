@@ -45,7 +45,7 @@ public class LoadParentDirectoryTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String s) {
-        driveExplorer.getFiles(s);
+        driveExplorer.loadFilesIntoUI(s);
         super.onPostExecute(s);
     }
 }

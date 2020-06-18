@@ -7,7 +7,7 @@ public class TimelineItem {
     private String description;
     private LocalDateTime currentDate;
     private DriveAction driveAction;
-    DateTimeFormatter formatter;
+    private DateTimeFormatter formatter;
 
     public TimelineItem(String description, LocalDateTime currentDate, DriveAction driveAction) {
         this.description = description;
@@ -31,5 +31,4 @@ public class TimelineItem {
     public String toCSVString(){
         return description + ";" + currentDate.format(formatter) + ";" + driveAction.name();
     }
-
 }
