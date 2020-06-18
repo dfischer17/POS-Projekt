@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
 
     //History and Camera Menue Items
-    private FloatingActionButton menueBtn, cameraBtn, historyBtn, trashCan;
+    private FloatingActionButton menueBtn, cameraBtn, historyBtn, trashCan, uploadBtn;
     private Animation fab_open, fab_close, fab_clock, fab_anticlock;
     Boolean isOpen = false;
 
@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
         cameraBtn = findViewById(R.id.cameraBtn);
         historyBtn = findViewById(R.id.historyBtn);
         trashCan = findViewById(R.id.trashCanBtn);
+        uploadBtn = findViewById(R.id.uploadBtn);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_clock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_clock);
@@ -162,19 +163,23 @@ public class MainActivity extends AppCompatActivity {
                 cameraBtn.startAnimation(fab_close);
                 historyBtn.startAnimation(fab_close);
                 trashCan.startAnimation(fab_close);
+                uploadBtn.startAnimation(fab_close);
                 menueBtn.startAnimation(fab_anticlock);
                 cameraBtn.setClickable(false);
                 historyBtn.setClickable(false);
                 trashCan.setClickable(false);
+                uploadBtn.setClickable(false);
                 isOpen = false;
             } else {
                 cameraBtn.startAnimation(fab_open);
                 historyBtn.startAnimation(fab_open);
                 trashCan.startAnimation(fab_open);
+                uploadBtn.startAnimation(fab_open);
                 menueBtn.startAnimation(fab_clock);
                 cameraBtn.setClickable(true);
                 historyBtn.setClickable(true);
                 trashCan.setClickable(true);
+                uploadBtn.setClickable(true);
                 isOpen = true;
             }
         });
@@ -190,6 +195,10 @@ public class MainActivity extends AppCompatActivity {
         trashCan.setOnClickListener(v -> {
             Intent intent = new Intent(this, TrashCan.class);
             startActivity(intent);
+        });
+
+        uploadBtn.setOnClickListener(v -> {
+            upload();
         });
 
         imageNames = new ArrayList<>();
@@ -283,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(temp);
                 break;
             case R.id.syncBtn:
-                for(int i = 0; i <= imageNames.size(); i++) {
+                for(int i = 0; i < imageNames.size(); i++) {
                     driveExplorer.uploadPhoto(currentImagePaths.get(i), imageNames.get(i));
                 }
                 currentImagePaths.clear();
