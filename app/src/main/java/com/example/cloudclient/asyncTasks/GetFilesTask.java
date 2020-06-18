@@ -38,7 +38,9 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
         FileList fileList = null;
         try {
             fileList = driveService.files().list().setQ("'" + folderId + "' in parents").execute();
+
             List<File> curDirectoryFiles = fileList.getFiles();
+
             return curDirectoryFiles;
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,6 +52,7 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
     @Override
     protected void onPostExecute(List<File> files) {
         activity.loadCurDirectoryHandler(files);
+
 
         // Ladebildschirm ausblenden
         progressBar.setVisibility(View.GONE);

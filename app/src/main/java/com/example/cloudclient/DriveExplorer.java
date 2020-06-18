@@ -13,6 +13,7 @@ import androidx.documentfile.provider.DocumentFile;
 import com.example.cloudclient.asyncTasks.DeleteTask;
 import com.example.cloudclient.asyncTasks.DownloadTask;
 import com.example.cloudclient.asyncTasks.GetFilesTask;
+import com.example.cloudclient.asyncTasks.PhotoUploadTask;
 import com.example.cloudclient.asyncTasks.RenameTask;
 import com.example.cloudclient.asyncTasks.UploadTask;
 import com.google.android.gms.tasks.Task;
@@ -77,5 +78,10 @@ public class DriveExplorer {
     public void downloadFile(String fileId, Uri uri) {
         DownloadTask downloadTask = new DownloadTask(driveService, activity);
         downloadTask.execute(fileId, uri);
+    }
+
+    public void uploadPhoto(String path, String filename){
+        PhotoUploadTask photoUploadTask = new PhotoUploadTask(driveService);
+        photoUploadTask.execute(path, filename);
     }
 }

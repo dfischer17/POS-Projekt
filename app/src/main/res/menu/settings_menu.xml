@@ -8,4 +8,9 @@
         android:title="Settings"
         app:showAsAction="ifRoom" />
 
+    <item android:id="@+id/syncBtn"
+        android:icon="@drawable/ic_sync"
+        android:title="Synchronize"
+        app:showAsAction="ifRoom" />
+
 </menu>

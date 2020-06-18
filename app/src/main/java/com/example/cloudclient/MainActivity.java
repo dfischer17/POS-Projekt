@@ -1,6 +1,10 @@
 package com.example.cloudclient;
 
 import android.app.Activity;
+import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -23,9 +27,11 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
 
 import com.example.cloudclient.asyncTasks.LoadParentDirectoryTask;
+import com.example.cloudclient.asyncTasks.PhotoUploadTask;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -33,9 +39,13 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.Drive.Changes;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.Change;
+import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
 
 import java.io.FileNotFoundException;
@@ -51,6 +61,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE_SIGN_IN = 1;
@@ -62,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
     // File Management
     private List<File> curDirectory = new ArrayList<>();
+    private List<File> allFiles = new ArrayList<>();
     private DriveContentAdapter driveContentAdapter;
 
     private SharedPreferences prefs;
@@ -76,8 +88,12 @@ public class MainActivity extends AppCompatActivity {
     DriveExplorer driveExplorer;
 
 
+
     //Camera
+    private List<String> currentImagePaths;
+    private List<String> imageNames;
     private String currentImagePath = null;
+    private String imageName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,12 +174,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        cameraBtn.setOnClickListener(v -> takePhoto());
+        cameraBtn.setOnClickListener(v -> {
+                takePhoto();
+        });
         historyBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, Timeline.class);
             startActivity(intent);
         });
 
+        imageNames = new ArrayList<>();
+        currentImagePaths = new ArrayList<>();
     }
 
     @Override
@@ -225,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
 
                     driveExplorer = new DriveExplorer(driveService, this);
                     driveExplorer.getFiles("root");
+
+
                 })
                 .addOnFailureListener(exception -> Log.e(TAG, "Unable to sign in.", exception));
     }
@@ -249,6 +271,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.settingsBtn:
                 Intent temp = new Intent(this, Settings.class);
                 startActivity(temp);
+                break;
+            case R.id.syncBtn:
+                for(int i = 0; i <= imageNames.size(); i++) {
+                    driveExplorer.uploadPhoto(currentImagePaths.get(i), imageNames.get(i));
+                }
+                currentImagePaths.clear();
+                imageNames.clear();
+                Intent inter = new Intent(this, MainActivity.class);
+                startActivity(inter);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -332,9 +363,8 @@ public class MainActivity extends AppCompatActivity {
             // Sonstige Dateien
             curDirectory.addAll(files);
             driveContentAdapter.notifyDataSetChanged();
+
         }
-
-
     }
 
     private void updateUI() {
@@ -343,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Camera
-    private void takePhoto() {
+    private void takePhoto(){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
@@ -360,16 +390,19 @@ public class MainActivity extends AppCompatActivity {
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 startActivity(cameraIntent);
             }
+
         }
     }
 
     private java.io.File getImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageName = "jpg_" + timeStamp + "_";
+        imageName = "jpg_" + timeStamp + "_";
+        imageNames.add(imageName);
         java.io.File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
         java.io.File imageFile = java.io.File.createTempFile(imageName, ".jpg", storageDir);
         currentImagePath = imageFile.getAbsolutePath();
+        currentImagePaths.add(currentImagePath);
         return imageFile;
     }
 
