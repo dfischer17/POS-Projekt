@@ -2,6 +2,7 @@ package com.example.cloudclient;
 
 import android.content.Context;
 import android.media.Image;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,14 +10,21 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.google.api.services.drive.model.File;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.List;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 
 public class DriveContentAdapter extends BaseAdapter {
     private List<File> curDirectory;
     private int layoutId;
     private LayoutInflater inflater;
     ImageView iv;
+
 
     public DriveContentAdapter(List<File> curDirectory, int layoutId, Context context) {
         this.curDirectory = curDirectory;
@@ -50,9 +58,13 @@ public class DriveContentAdapter extends BaseAdapter {
         else if (file.getMimeType().equals(DriveExplorer.folderMimeType)){
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_folder);
         }
+        else if(file.getMimeType().equals("image/jpeg")){
+            listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_image);
+        }
         else {
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_file);
         }
         return listItem;
     }
+
 }

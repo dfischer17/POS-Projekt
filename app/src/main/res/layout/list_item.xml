@@ -15,7 +15,7 @@
 
         <ImageView
             android:id="@+id/iconListItem"
-            android:layout_width="25dp"
+            android:layout_width="40dp"
             android:layout_height="25dp"
             android:layout_weight="1" />
 
