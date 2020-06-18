@@ -58,8 +58,11 @@ public class DriveContentAdapter extends BaseAdapter {
         else if (file.getMimeType().equals(DriveExplorer.folderMimeType)){
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_folder);
         }
-        else if(file.getMimeType().equals("image/jpeg")){
+        else if(file.getMimeType().equals("image/jpeg") || file.getMimeType().equals("image/png") || file.getMimeType().equals("image/gif")){
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_image);
+        }
+        else if(file.getMimeType().equals("application/pdf")){
+            listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_pdf);
         }
         else {
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_file);

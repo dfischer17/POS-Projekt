@@ -91,7 +91,7 @@
         android:visibility="invisible"
         app:backgroundTint="?attr/textColor"
         app:pressedTranslationZ="12dp"
-        app:srcCompat="@drawable/ic_trashcan"
+        app:srcCompat="@drawable/ic_delete"
          />
 
 </RelativeLayout>
