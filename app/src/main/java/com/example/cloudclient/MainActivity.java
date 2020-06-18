@@ -273,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(temp);
                 break;
             case R.id.syncBtn:
-                for(int i = 0; i <= imageNames.size(); i++) {
+                for(int i = 0; i < imageNames.size(); i++) {
                     driveExplorer.uploadPhoto(currentImagePaths.get(i), imageNames.get(i));
                 }
                 currentImagePaths.clear();
