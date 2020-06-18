@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
 
     //History and Camera Menue Items
-    private FloatingActionButton menueBtn, cameraBtn, historyBtn;
+    private FloatingActionButton menueBtn, cameraBtn, historyBtn, trashCan;
     private Animation fab_open, fab_close, fab_clock, fab_anticlock;
     Boolean isOpen = false;
 
@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         menueBtn = findViewById(R.id.menueFabBtn);
         cameraBtn = findViewById(R.id.cameraBtn);
         historyBtn = findViewById(R.id.historyBtn);
+        trashCan = findViewById(R.id.trashCanBtn);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
         fab_clock = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_rotate_clock);
@@ -160,16 +161,20 @@ public class MainActivity extends AppCompatActivity {
             if (isOpen) {
                 cameraBtn.startAnimation(fab_close);
                 historyBtn.startAnimation(fab_close);
+                trashCan.startAnimation(fab_close);
                 menueBtn.startAnimation(fab_anticlock);
                 cameraBtn.setClickable(false);
                 historyBtn.setClickable(false);
+                trashCan.setClickable(false);
                 isOpen = false;
             } else {
                 cameraBtn.startAnimation(fab_open);
                 historyBtn.startAnimation(fab_open);
+                trashCan.startAnimation(fab_open);
                 menueBtn.startAnimation(fab_clock);
                 cameraBtn.setClickable(true);
                 historyBtn.setClickable(true);
+                trashCan.setClickable(true);
                 isOpen = true;
             }
         });
@@ -179,6 +184,11 @@ public class MainActivity extends AppCompatActivity {
         });
         historyBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, Timeline.class);
+            startActivity(intent);
+        });
+
+        trashCan.setOnClickListener(v -> {
+            Intent intent = new Intent(this, TrashCan.class);
             startActivity(intent);
         });
 

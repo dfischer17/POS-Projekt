@@ -5,6 +5,24 @@
     android:layout_height="match_parent">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/trashCanBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="246dp"
+        android:layout_marginEnd="24dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:elevation="16dp"
+        android:focusable="true"
+        android:visibility="invisible"
+        app:backgroundTint="?attr/textColor"
+        app:pressedTranslationZ="12dp"
+        app:srcCompat="@drawable/ic_trashcan"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/historyBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

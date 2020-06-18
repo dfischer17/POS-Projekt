@@ -12,8 +12,7 @@
         android:name="android.hardware.Camera"
         android:required="true" />
 
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Permissions required by GoogleAuthUtil -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Permissions required by GoogleAuthUtil -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -25,7 +24,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Timeline" android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".TrashCan"
+            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".Timeline"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".Settings" />
         <activity android:name=".MainActivity">
             <intent-filter>

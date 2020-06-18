@@ -25,8 +25,6 @@ public class Timeline extends AppCompatActivity {
     private static final String TAG = "timeline";
     private static String filename = "timeline.txt";
 
-    private Button backBtn;
-
     private SharedPreferences prefs;
     private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
 
