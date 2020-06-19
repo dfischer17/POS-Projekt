@@ -17,7 +17,7 @@
         android:elevation="16dp"
         android:focusable="true"
         android:visibility="invisible"
-        app:backgroundTint="?attr/textColor"
+        app:backgroundTint="?attr/buttonColor"
         app:pressedTranslationZ="12dp"
         app:srcCompat="@drawable/ic_cloud_upload"
         />
@@ -35,7 +35,7 @@
         android:elevation="16dp"
         android:focusable="true"
         android:visibility="invisible"
-        app:backgroundTint="?attr/textColor"
+        app:backgroundTint="?attr/buttonColor"
         app:pressedTranslationZ="12dp"
         app:srcCompat="@drawable/ic_history"
         />
@@ -53,7 +53,7 @@
         android:elevation="16dp"
         android:focusable="true"
         android:visibility="invisible"
-        app:backgroundTint="?attr/textColor"
+        app:backgroundTint="?attr/buttonColor"
         app:pressedTranslationZ="12dp"
         app:srcCompat="@drawable/ic_camera"
         />
@@ -71,7 +71,7 @@
         android:elevation="16dp"
         android:focusable="true"
         android:visibility="visible"
-        app:backgroundTint="?attr/textColor"
+        app:backgroundTint="?attr/buttonColor"
         app:pressedTranslationZ="12dp"
         app:srcCompat="@drawable/ic_menu"
         />
@@ -89,7 +89,7 @@
         android:elevation="16dp"
         android:focusable="true"
         android:visibility="invisible"
-        app:backgroundTint="?attr/textColor"
+        app:backgroundTint="?attr/buttonColor"
         app:pressedTranslationZ="12dp"
         app:srcCompat="@drawable/ic_delete"
          />

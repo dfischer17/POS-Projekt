@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.example.cloudclient.FileUtils;
+import com.example.cloudclient.MainActivity;
 import com.google.api.services.drive.Drive;
 
 import java.io.ByteArrayOutputStream;
@@ -21,9 +22,10 @@ import static androidx.core.app.ActivityCompat.requestPermissions;
 
 public class DownloadTask extends AsyncTask<Object, Void, Void> {
     private Drive driveService;
-    private Activity activity;
+    private MainActivity activity;
+    String filename;
 
-    public DownloadTask(Drive driveService, Activity activity) {
+    public DownloadTask(Drive driveService, MainActivity activity) {
         this.driveService = driveService;
         this.activity = activity;
     }
@@ -40,7 +42,7 @@ public class DownloadTask extends AsyncTask<Object, Void, Void> {
                 FileUtils fileUtils = new FileUtils(activity);
                 DocumentFile folder = DocumentFile.fromTreeUri(activity, uri);
 
-                String filename = driveService.files().get(fileId).execute().getName();
+                filename = driveService.files().get(fileId).execute().getName();
                 DocumentFile newfile = folder.createFile("text/plain", filename);
 
                 String path = fileUtils.getPath(newfile.getUri());
@@ -65,5 +67,10 @@ public class DownloadTask extends AsyncTask<Object, Void, Void> {
             requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        activity.newDownloadNotification(filename);
     }
 }
