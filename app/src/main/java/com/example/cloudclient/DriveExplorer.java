@@ -12,6 +12,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.example.cloudclient.asyncTasks.DeleteTask;
 import com.example.cloudclient.asyncTasks.DownloadTask;
+import com.example.cloudclient.asyncTasks.GetDeletedFilesTask;
 import com.example.cloudclient.asyncTasks.GetFilesTask;
 import com.example.cloudclient.asyncTasks.PhotoUploadTask;
 import com.example.cloudclient.asyncTasks.RenameTask;
@@ -48,9 +49,15 @@ public class DriveExplorer {
         this.activity = activity;
     }
 
-    public void getFiles(String folderId) {
+    // TODO Ueberpruefen, ob sich die beiden loadFiles Methoden vereinen lassen
+    public void loadFilesIntoUI(String folderId) {
         GetFilesTask getFilesTask = new GetFilesTask(driveService, activity);
         getFilesTask.execute(folderId);
+    }
+
+    public void loadDeletedFilesIntoUI() {
+        GetDeletedFilesTask deletedFilesTask = new GetDeletedFilesTask(driveService, activity);
+        deletedFilesTask.execute();
     }
 
     public void deleteFile(String fileId) {

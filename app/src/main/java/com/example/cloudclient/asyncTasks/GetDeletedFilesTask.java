@@ -1,8 +1,8 @@
 package com.example.cloudclient.asyncTasks;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import com.example.cloudclient.MainActivity;
@@ -14,12 +14,12 @@ import com.google.api.services.drive.model.FileList;
 import java.io.IOException;
 import java.util.List;
 
-public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
+public class GetDeletedFilesTask extends AsyncTask<Void, Void, List<File>> {
     private Drive driveService;
-    private MainActivity activity;
+    private Activity activity;
     private ProgressBar progressBar;
 
-    public GetFilesTask(Drive driveService, MainActivity activity) {
+    public GetDeletedFilesTask(Drive driveService, Activity activity) {
         this.driveService = driveService;
         this.activity = activity;
     }
@@ -32,14 +32,11 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
     }
 
     @Override
-    protected List<File> doInBackground(String... strings) {
-        String folderId = strings[0];
-
-        FileList fileList = null;
+    protected List<File> doInBackground(Void... voids) {
+        FileList deletedFiles = null;
         try {
-            fileList = driveService.files().list().setQ("'" + folderId + "' in parents and trashed = false").execute();
-            List<File> curDirectoryFiles = fileList.getFiles();
-
+            deletedFiles = driveService.files().list().setQ("trashed = true").execute();
+            List<File> curDirectoryFiles = deletedFiles.getFiles();
             return curDirectoryFiles;
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,7 +47,7 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
 
     @Override
     protected void onPostExecute(List<File> files) {
-        activity.loadCurDirectoryHandler(files);
+        //activity.loadCurDirectoryHandler(files); // TODO neuen Handler fuer Trash Activity schreiben
 
         // Ladebildschirm ausblenden
         progressBar.setVisibility(View.GONE);
