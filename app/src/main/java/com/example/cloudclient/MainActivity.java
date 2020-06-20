@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_DOWNLOAD_FILE = 2;
     private static final int REQUEST_CODE_UPLOAD_FILE = 3;
     private static final String CHANNEL_ID = "channelId";
+    private static final int UPLOAD_NOTIFICATION_ID = 1;
+    private static final int DOWNLOAD_NOTIFICATION_ID = 2;
 
     // Google Drive API
     Drive driveService;
@@ -98,8 +100,8 @@ public class MainActivity extends AppCompatActivity {
     //Camera
     private List<String> currentImagePaths;
     private List<String> imageNames;
-    private String currentImagePath = null;
-    private String imageName = null;
+    public String currentImagePath = null;
+    public String imageName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         cameraBtn.setOnClickListener(v -> {
-                takePhoto();
+            driveExplorer.uploadPhoto(currentImagePath, imageName);
         });
         historyBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, Timeline.class);
@@ -210,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         imageNames = new ArrayList<>();
         currentImagePaths = new ArrayList<>();
 
-
+        newChannel();
     }
 
     @Override
@@ -400,7 +402,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Camera
-    private void takePhoto(){
+    public void takePhoto(){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
@@ -460,25 +462,9 @@ public class MainActivity extends AppCompatActivity {
                 .setWhen(System.currentTimeMillis())
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Channel";
-            String description = "new Channel";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(
-                    NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-
         NotificationManagerCompat notificationManager =
                 NotificationManagerCompat.from(this);
-        // notificationId is a unique int for each notification that you must define
-        int notificationId = 1;
-        notificationManager.notify(notificationId, builder.build());
+        notificationManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
     }
 
     public void newDownloadNotification(String fileName){
@@ -491,25 +477,23 @@ public class MainActivity extends AppCompatActivity {
                 .setWhen(System.currentTimeMillis())
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(this);
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, builder.build());
+    }
+
+    private void newChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Channel";
-            String description = "new Channel";
+            CharSequence name = "Upload/Download Channel";
+            String description = "Notifications when files uploaded/downloaded";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(
                     CHANNEL_ID, name, importance);
             channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(
                     NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-
-        NotificationManagerCompat notificationManager =
-                NotificationManagerCompat.from(this);
-        // notificationId is a unique int for each notification that you must define
-        int notificationId = 1;
-        notificationManager.notify(notificationId, builder.build());
     }
 
 

@@ -1,12 +1,21 @@
 package com.example.cloudclient.asyncTasks;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.provider.MediaStore;
 
+import androidx.core.content.FileProvider;
+
+import com.example.cloudclient.MainActivity;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class PhotoUploadTask extends AsyncTask<String, Void, Void> {
@@ -15,8 +24,10 @@ public class PhotoUploadTask extends AsyncTask<String, Void, Void> {
 
     public PhotoUploadTask(Drive driveService) {
         this.driveService = driveService;
-
     }
+
+
+
 
     @Override
     protected Void doInBackground(String... strings) {
