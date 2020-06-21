@@ -40,6 +40,7 @@ import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.Drive.Changes;
 import com.google.api.services.drive.DriveScopes;
@@ -191,9 +192,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // TODO Trash can funktionalitaet entfernen
         trashCan.setOnClickListener(v -> {
-            Intent intent = new Intent(this, TrashCan.class);
-            startActivity(intent);
+
         });
 
         uploadBtn.setOnClickListener(v -> {
@@ -323,6 +324,10 @@ public class MainActivity extends AppCompatActivity {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
 
         switch (selectedAction) {
+            case R.id.context_details:
+                driveExplorer.getFileDetails(fileId);
+                break;
+
             case R.id.context_download:
                 driveExplorer.downloadFileRequest(fileId);
                 writeToFile(new TimelineItem(selectedFile.getName(), ldt, DriveAction.valueOf("DOWNLOAD")));
