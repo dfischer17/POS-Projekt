@@ -71,7 +71,7 @@ public class DriveExplorer {
     }
 
     public void uploadFile(String path) {
-        UploadTask uploadTask = new UploadTask(driveService);
+        UploadTask uploadTask = new UploadTask(driveService, activity);
         uploadTask.execute(path);
     }
 
