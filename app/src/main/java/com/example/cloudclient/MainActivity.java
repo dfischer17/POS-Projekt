@@ -3,11 +3,15 @@ package com.example.cloudclient;
 import android.app.Activity;
 import android.app.IntentService;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -28,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
 
 import com.example.cloudclient.asyncTasks.LoadParentDirectoryTask;
@@ -68,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final int REQUEST_CODE_DOWNLOAD_FILE = 2;
     private static final int REQUEST_CODE_UPLOAD_FILE = 3;
+    private static final String CHANNEL_ID = "channelId";
+    private static final int UPLOAD_NOTIFICATION_ID = 1;
+    private static final int DOWNLOAD_NOTIFICATION_ID = 2;
 
     // Google Drive API
     Drive driveService;
@@ -93,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
     //Camera
     private List<String> currentImagePaths;
     private List<String> imageNames;
-    private String currentImagePath = null;
-    private String imageName = null;
+    public String currentImagePath = null;
+    public String imageName = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // TODO Trash can funktionalitaet entfernen
+        // TODO Search Funktionalitaet implementieren
         searchBtn.setOnClickListener(v -> {
 
         });
@@ -207,6 +215,8 @@ public class MainActivity extends AppCompatActivity {
 
         imageNames = new ArrayList<>();
         currentImagePaths = new ArrayList<>();
+
+        newChannel();
     }
 
     @Override
@@ -422,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
 
     private java.io.File getImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        imageName = "jpg_" + timeStamp + "_";
+        imageName = "IMG_" + timeStamp;
         imageNames.add(imageName);
         java.io.File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 
@@ -447,5 +457,49 @@ public class MainActivity extends AppCompatActivity {
     private void preferenceChanged(SharedPreferences sharedPrefs, String key) {
         Intent mIntent = new Intent(this, MainActivity.class);
         startActivity(mIntent);
+    }
+
+    public void newUploadNotification(String fileName){
+        NotificationCompat.Builder builder  = new NotificationCompat.Builder(
+                this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_cloud_upload)
+                .setColor(Color.YELLOW)
+                .setContentTitle("Upload")
+                .setContentText(fileName + " uploaded!")
+                .setWhen(System.currentTimeMillis())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(this);
+        notificationManager.notify(UPLOAD_NOTIFICATION_ID, builder.build());
+    }
+
+    public void newDownloadNotification(String fileName){
+        NotificationCompat.Builder builder  = new NotificationCompat.Builder(
+                this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_cloud_download)
+                .setColor(Color.YELLOW)
+                .setContentTitle("Download")
+                .setContentText(fileName + " downloaded!")
+                .setWhen(System.currentTimeMillis())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(this);
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, builder.build());
+    }
+
+    private void newChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Upload/Download Channel";
+            String description = "Notifications when files uploaded/downloaded";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(
+                    NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

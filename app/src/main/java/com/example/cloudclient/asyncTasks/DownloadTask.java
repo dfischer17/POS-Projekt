@@ -7,6 +7,8 @@ import android.os.AsyncTask;
 
 import androidx.documentfile.provider.DocumentFile;
 
+import com.example.cloudclient.FileUtils;
+import com.example.cloudclient.MainActivity;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 
@@ -15,9 +17,10 @@ import java.io.OutputStream;
 
 public class DownloadTask extends AsyncTask<Object, Void, Void> {
     private Drive driveService;
-    private Activity activity;
+    private MainActivity activity;
+    String filename;
 
-    public DownloadTask(Drive driveService, Activity activity) {
+    public DownloadTask(Drive driveService, MainActivity activity) {
         this.driveService = driveService;
         this.activity = activity;
     }
@@ -29,7 +32,7 @@ public class DownloadTask extends AsyncTask<Object, Void, Void> {
 
         try {
             File downloadFile = driveService.files().get(fileId).execute();
-            String filename = downloadFile.getName();
+            filename = downloadFile.getName();
             String mimeType = downloadFile.getMimeType();
 
             DocumentFile tree = DocumentFile.fromTreeUri(activity, uri);
@@ -48,5 +51,10 @@ public class DownloadTask extends AsyncTask<Object, Void, Void> {
         }
 
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        activity.newDownloadNotification(filename);
     }
 }
