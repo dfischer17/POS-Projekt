@@ -184,7 +184,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
         cameraBtn.setOnClickListener(v -> {
-                takePhoto();
+            boolean temp = takePhoto();
+            if(temp){
+                driveExplorer.uploadPhoto(currentImagePath, imageName);
+            }
         });
         historyBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, Timeline.class);
@@ -389,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Camera
-    private void takePhoto(){
+    private boolean takePhoto(){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (cameraIntent.resolveActivity(getPackageManager()) != null) {
@@ -408,6 +411,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+        return true;
     }
 
     private java.io.File getImageFile() throws IOException {
