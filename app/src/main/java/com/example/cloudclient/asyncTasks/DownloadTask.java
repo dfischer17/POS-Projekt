@@ -1,23 +1,17 @@
 package com.example.cloudclient.asyncTasks;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.pm.PackageManager;
+import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.example.cloudclient.FileUtils;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static androidx.core.app.ActivityCompat.requestPermissions;
 
 public class DownloadTask extends AsyncTask<Object, Void, Void> {
     private Drive driveService;
@@ -33,37 +27,26 @@ public class DownloadTask extends AsyncTask<Object, Void, Void> {
         String fileId = (String) objects[0];
         Uri uri = (Uri) objects[1];
 
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
-                PackageManager.PERMISSION_GRANTED) {
+        try {
+            File downloadFile = driveService.files().get(fileId).execute();
+            String filename = downloadFile.getName();
+            String mimeType = downloadFile.getMimeType();
 
-            try {
-                FileUtils fileUtils = new FileUtils(activity);
-                DocumentFile folder = DocumentFile.fromTreeUri(activity, uri);
+            DocumentFile tree = DocumentFile.fromTreeUri(activity, uri);
+            DocumentFile destination = tree.createFile(mimeType, filename);
 
-                String filename = driveService.files().get(fileId).execute().getName();
-                DocumentFile newfile = folder.createFile("text/plain", filename);
+            ContentResolver contentResolver = activity.getContentResolver();
+            OutputStream stream = contentResolver.openOutputStream(destination.getUri());
 
-                String path = fileUtils.getPath(newfile.getUri());
+            driveService.files().get(fileId)
+                    .executeMediaAndDownloadTo(stream);
+            stream.flush();
+            stream.close();
 
-                // content
-                OutputStream outputStream = new ByteArrayOutputStream();
-                driveService.files().get(fileId)
-                        .executeMediaAndDownloadTo(outputStream);
-                String filecontent = outputStream.toString();
-
-                // create file
-                FileOutputStream fos = new FileOutputStream(path);
-                byte[] buffer = filecontent.getBytes();
-                fos.write(buffer, 0, buffer.length);
-                fos.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-        } else {
-            requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
         return null;
     }
 }
