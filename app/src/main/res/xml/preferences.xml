@@ -8,12 +8,6 @@
             android:entryValues="@array/themevalues"
             android:key="theme"
             android:title="Theme" />
-        <ListPreference
-            android:defaultValue="ascending"
-            android:entries="@array/sort"
-            android:entryValues="@array/sortvalues"
-            android:key="sorting"
-            android:title="Sorting" />
     </PreferenceCategory>
 
 </PreferenceScreen>

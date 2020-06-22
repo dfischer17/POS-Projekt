@@ -123,13 +123,6 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
         }
 
-        String sort = prefs.getString("sort", "ascending");
-        if (theme.equals("ascending")) { //aufsteigend
-
-        } else if (theme.equals("descending")) { //absteigend
-
-        }
-
         // init UI
         GridView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
 
@@ -431,12 +424,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return true;
     }
-
-//    @Override
-//    protected void onStop() {
-//        driveExplorer.uploadPhoto(currentImagePath, imageName);
-//        super.onStop();
-//    }
 
     private java.io.File getImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());

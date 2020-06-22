@@ -9,13 +9,4 @@
         <item>darkTheme</item>
         <item>lightTheme</item>
     </string-array>
-    <string-array name="sort">
-        <item>ascending</item>
-        <item>descending</item>
-    </string-array>
-
-    <string-array name="sortvalues">
-        <item>ascending</item>
-        <item>descending</item>
-    </string-array>
 </resources>
