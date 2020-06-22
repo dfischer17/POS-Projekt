@@ -82,8 +82,11 @@ public class DetailActivity extends AppCompatActivity {
         else if(mimeType.equals("application/pdf")){
             imageView.setBackgroundResource(R.drawable.ic_pdf);
         }
-        else if(mimeType.equals("audio/*")){
+        else if(mimeType.equals("video/mpeg") || mimeType.equals("video/mp4") || mimeType.equals("video/ogg")){
             imageView.setBackgroundResource(R.drawable.ic_video);
+        }
+        else if(mimeType.equals("audio/mp3") || mimeType.equals("audio/mpeg") || mimeType.equals("audio/mp4") || mimeType.equals("audio/ogg")){
+            imageView.setBackgroundResource(R.drawable.ic_music_note);
         }
         else {
             imageView.setBackgroundResource(R.drawable.ic_file);
