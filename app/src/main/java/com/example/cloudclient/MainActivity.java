@@ -96,8 +96,6 @@ public class MainActivity extends AppCompatActivity {
     // Erledigt Drive-Befehle
     DriveExplorer driveExplorer;
 
-
-
     //Camera
     private List<String> currentImagePaths;
     private List<String> imageNames;
@@ -194,10 +192,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         cameraBtn.setOnClickListener(v -> {
-            boolean temp = takePhoto();
-            if(temp){
-                driveExplorer.uploadPhoto(currentImagePath, imageName);
-            }
+            takePhoto();
         });
         historyBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, Timeline.class);
@@ -305,6 +300,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(temp);
                 break;
             case R.id.homeBtn:
+                // Laedt Bilder hoch und geht ins root-Verzeichnis
                 for(int i = 0; i < imageNames.size(); i++) {
                     driveExplorer.uploadPhoto(currentImagePaths.get(i), imageNames.get(i));
                 }
@@ -425,10 +421,15 @@ public class MainActivity extends AppCompatActivity {
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 startActivity(cameraIntent);
             }
-
         }
         return true;
     }
+
+//    @Override
+//    protected void onStop() {
+//        driveExplorer.uploadPhoto(currentImagePath, imageName);
+//        super.onStop();
+//    }
 
     private java.io.File getImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -442,18 +443,7 @@ public class MainActivity extends AppCompatActivity {
         return imageFile;
     }
 
-    public void writeToFile(TimelineItem input) {
-        try {
-            FileOutputStream fos = openFileOutput("timeline.txt", MODE_PRIVATE | MODE_APPEND);
-            PrintWriter out = new PrintWriter(new OutputStreamWriter(fos));
-            out.println(input.toCSVString());
-            out.flush();
-            out.close();
-        } catch (FileNotFoundException exp) {
-            Log.d(TAG, exp.getStackTrace().toString());
-        }
-    }
-
+    // Notifications
     private void preferenceChanged(SharedPreferences sharedPrefs, String key) {
         Intent mIntent = new Intent(this, MainActivity.class);
         startActivity(mIntent);
@@ -500,6 +490,19 @@ public class MainActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(
                     NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    // Utility
+    public void writeToFile(TimelineItem input) {
+        try {
+            FileOutputStream fos = openFileOutput("timeline.txt", MODE_PRIVATE | MODE_APPEND);
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(fos));
+            out.println(input.toCSVString());
+            out.flush();
+            out.close();
+        } catch (FileNotFoundException exp) {
+            Log.d(TAG, exp.getStackTrace().toString());
         }
     }
 }
