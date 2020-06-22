@@ -29,9 +29,6 @@ public class PhotoUploadTask extends AsyncTask<String, Void, Void> {
         this.mainActivity = mainActivity;
     }
 
-
-
-
     @Override
     protected Void doInBackground(String... strings) {
         File fileMetadata = new File();
@@ -58,5 +55,5 @@ public class PhotoUploadTask extends AsyncTask<String, Void, Void> {
         mainActivity.newPhotoUploadNotification(fileName);
     }
 
-    
+
 }
