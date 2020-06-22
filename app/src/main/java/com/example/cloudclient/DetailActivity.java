@@ -4,7 +4,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,10 +17,24 @@ import java.time.format.DateTimeFormatter;
 
 public class DetailActivity extends AppCompatActivity {
 
+    private SharedPreferences prefs;
+    private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detail);
+
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String theme = prefs.getString("theme", "lightTheme");
+
+        if (theme.equals("darkTheme")) {
+            setTheme(R.style.DarkTheme);
+            setContentView(R.layout.activity_detail);
+        } else if (theme.equals("lightTheme")) {
+            setTheme(R.style.LightTheme);
+            setContentView(R.layout.activity_detail);
+        }
 
         // Init UI
         TextView idView = findViewById(R.id.frag_id);
@@ -27,6 +43,7 @@ public class DetailActivity extends AppCompatActivity {
         TextView mimeTypeView = findViewById(R.id.frag_mimeType);
         TextView createdTimeView = findViewById(R.id.frag_createdTime);
         ImageView imageView = findViewById(R.id.imageView);
+        ImageView imageView1 = findViewById(R.id.insertImage);
 
         // Werte setzen
         FileDetails fileDetails = (FileDetails) getIntent().getSerializableExtra("details");
@@ -64,6 +81,9 @@ public class DetailActivity extends AppCompatActivity {
         }
         else if(mimeType.equals("application/pdf")){
             imageView.setBackgroundResource(R.drawable.ic_pdf);
+        }
+        else if(mimeType.equals("audio/*")){
+            imageView.setBackgroundResource(R.drawable.ic_video);
         }
         else {
             imageView.setBackgroundResource(R.drawable.ic_file);
