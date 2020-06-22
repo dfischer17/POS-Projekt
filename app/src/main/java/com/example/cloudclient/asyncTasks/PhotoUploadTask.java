@@ -21,9 +21,12 @@ import java.util.List;
 public class PhotoUploadTask extends AsyncTask<String, Void, Void> {
 
     private Drive driveService;
+    private MainActivity mainActivity;
+    String fileName;
 
-    public PhotoUploadTask(Drive driveService) {
+    public PhotoUploadTask(Drive driveService, MainActivity mainActivity) {
         this.driveService = driveService;
+        this.mainActivity = mainActivity;
     }
 
 
@@ -32,6 +35,7 @@ public class PhotoUploadTask extends AsyncTask<String, Void, Void> {
     @Override
     protected Void doInBackground(String... strings) {
         File fileMetadata = new File();
+        fileName = strings[1];
         fileMetadata.setName(strings[1]);
         fileMetadata.setMimeType("image/jpeg");
 
@@ -48,4 +52,11 @@ public class PhotoUploadTask extends AsyncTask<String, Void, Void> {
         System.out.println("File ID: " + file.getId());
         return null;
     }
+
+    @Override
+    protected void onPostExecute(Void aVoid) {
+        mainActivity.newPhotoUploadNotification(fileName);
+    }
+
+    
 }

@@ -496,6 +496,21 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, builder.build());
     }
 
+    public void newPhotoUploadNotification(String fileName){
+        NotificationCompat.Builder builder  = new NotificationCompat.Builder(
+                this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_add_to_photos)
+                .setColor(Color.YELLOW)
+                .setContentTitle("PhotoUpload")
+                .setContentText(fileName + " Photo Uploaded!")
+                .setWhen(System.currentTimeMillis())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(this);
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, builder.build());
+    }
+
     private void newChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Upload/Download Channel";
