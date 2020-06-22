@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
 
     //History and Camera Menue Items
-    private FloatingActionButton menueBtn, cameraBtn, historyBtn, trashCan, uploadBtn;
+    private FloatingActionButton menueBtn, cameraBtn, historyBtn, searchBtn, uploadBtn;
     private Animation fab_open, fab_close, fab_clock, fab_anticlock;
     Boolean isOpen = false;
 
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         menueBtn = findViewById(R.id.menueFabBtn);
         cameraBtn = findViewById(R.id.cameraBtn);
         historyBtn = findViewById(R.id.historyBtn);
-        trashCan = findViewById(R.id.trashCanBtn);
+        searchBtn = findViewById(R.id.searchBtn);
         uploadBtn = findViewById(R.id.uploadBtn);
         fab_close = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_close);
         fab_open = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fab_open);
@@ -170,23 +170,23 @@ public class MainActivity extends AppCompatActivity {
             if (isOpen) {
                 cameraBtn.startAnimation(fab_close);
                 historyBtn.startAnimation(fab_close);
-                trashCan.startAnimation(fab_close);
+                searchBtn.startAnimation(fab_close);
                 uploadBtn.startAnimation(fab_close);
                 menueBtn.startAnimation(fab_anticlock);
                 cameraBtn.setClickable(false);
                 historyBtn.setClickable(false);
-                trashCan.setClickable(false);
+                searchBtn.setClickable(false);
                 uploadBtn.setClickable(false);
                 isOpen = false;
             } else {
                 cameraBtn.startAnimation(fab_open);
                 historyBtn.startAnimation(fab_open);
-                trashCan.startAnimation(fab_open);
+                searchBtn.startAnimation(fab_open);
                 uploadBtn.startAnimation(fab_open);
                 menueBtn.startAnimation(fab_clock);
                 cameraBtn.setClickable(true);
                 historyBtn.setClickable(true);
-                trashCan.setClickable(true);
+                searchBtn.setClickable(true);
                 uploadBtn.setClickable(true);
                 isOpen = true;
             }
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        trashCan.setOnClickListener(v -> {
+        searchBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, TrashCan.class);
             startActivity(intent);
         });
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent temp = new Intent(this, Settings.class);
                 startActivity(temp);
                 break;
-            case R.id.syncBtn:
+            case R.id.homeBtn:
                 for(int i = 0; i < imageNames.size(); i++) {
                     driveExplorer.uploadPhoto(currentImagePaths.get(i), imageNames.get(i));
                 }
