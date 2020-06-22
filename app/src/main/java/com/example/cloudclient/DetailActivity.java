@@ -43,7 +43,6 @@ public class DetailActivity extends AppCompatActivity {
         TextView mimeTypeView = findViewById(R.id.frag_mimeType);
         TextView createdTimeView = findViewById(R.id.frag_createdTime);
         ImageView imageView = findViewById(R.id.imageView);
-        ImageView imageView1 = findViewById(R.id.insertImage);
 
         // Werte setzen
         FileDetails fileDetails = (FileDetails) getIntent().getSerializableExtra("details");
