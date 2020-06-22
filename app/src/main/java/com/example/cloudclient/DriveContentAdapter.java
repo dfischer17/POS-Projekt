@@ -64,6 +64,12 @@ public class DriveContentAdapter extends BaseAdapter {
         else if(file.getMimeType().equals("application/pdf")){
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_pdf);
         }
+        else if(file.getMimeType().equals("video/mpeg") || file.getMimeType().equals("video/mp4") || file.getMimeType().equals("video/ogg")){
+            listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_video);
+        }
+        else if(file.getMimeType().equals("audio/mpeg") || file.getMimeType().equals("audio/mp4") || file.getMimeType().equals("audio/ogg")){
+            listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_music_note);
+        }
         else {
             listItem.findViewById(R.id.iconListItem).setBackgroundResource(R.drawable.ic_file);
         }

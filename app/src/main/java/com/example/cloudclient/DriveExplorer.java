@@ -1,36 +1,17 @@
 package com.example.cloudclient;
 
-import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-import androidx.documentfile.provider.DocumentFile;
 
 import com.example.cloudclient.asyncTasks.DeleteTask;
 import com.example.cloudclient.asyncTasks.DownloadTask;
 import com.example.cloudclient.asyncTasks.GetDeletedFilesTask;
+import com.example.cloudclient.asyncTasks.GetFileDetailsTask;
 import com.example.cloudclient.asyncTasks.GetFilesTask;
 import com.example.cloudclient.asyncTasks.PhotoUploadTask;
 import com.example.cloudclient.asyncTasks.RenameTask;
 import com.example.cloudclient.asyncTasks.UploadTask;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import static androidx.core.app.ActivityCompat.requestPermissions;
 
 public class DriveExplorer {
     private static final String TAG = "DriveExplorer";
@@ -90,5 +71,10 @@ public class DriveExplorer {
     public void uploadPhoto(String path, String filename){
         PhotoUploadTask photoUploadTask = new PhotoUploadTask(driveService);
         photoUploadTask.execute(path, filename);
+    }
+
+    public void getFileDetails(String fileId) {
+        GetFileDetailsTask fileDetailsTask = new GetFileDetailsTask(driveService, activity);
+        fileDetailsTask.execute(fileId);
     }
 }
