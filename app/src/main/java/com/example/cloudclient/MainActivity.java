@@ -125,6 +125,13 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
         }
 
+        String sort = prefs.getString("sort", "ascending");
+        if (theme.equals("ascending")) { //aufsteigend
+
+        } else if (theme.equals("descending")) { //absteigend
+
+        }
+
         // init UI
         GridView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
 
