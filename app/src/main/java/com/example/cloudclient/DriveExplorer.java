@@ -69,7 +69,7 @@ public class DriveExplorer {
     }
 
     public void uploadPhoto(String path, String filename){
-        PhotoUploadTask photoUploadTask = new PhotoUploadTask(driveService);
+        PhotoUploadTask photoUploadTask = new PhotoUploadTask(driveService, activity);
         photoUploadTask.execute(path, filename);
     }
 

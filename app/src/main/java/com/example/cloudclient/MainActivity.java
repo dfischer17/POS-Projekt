@@ -123,6 +123,13 @@ public class MainActivity extends AppCompatActivity {
             setContentView(R.layout.activity_main);
         }
 
+        String sort = prefs.getString("sort", "ascending");
+        if (theme.equals("ascending")) { //aufsteigend
+
+        } else if (theme.equals("descending")) { //absteigend
+
+        }
+
         // init UI
         GridView curDirectoryLayout = findViewById(R.id.curDirectoryListView);
 
@@ -471,6 +478,21 @@ public class MainActivity extends AppCompatActivity {
                 .setColor(Color.YELLOW)
                 .setContentTitle("Download")
                 .setContentText(fileName + " downloaded!")
+                .setWhen(System.currentTimeMillis())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(this);
+        notificationManager.notify(DOWNLOAD_NOTIFICATION_ID, builder.build());
+    }
+
+    public void newPhotoUploadNotification(String fileName){
+        NotificationCompat.Builder builder  = new NotificationCompat.Builder(
+                this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_add_to_photos)
+                .setColor(Color.YELLOW)
+                .setContentTitle("PhotoUpload")
+                .setContentText(fileName + " Photo Uploaded!")
                 .setWhen(System.currentTimeMillis())
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
