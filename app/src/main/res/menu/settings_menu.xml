@@ -8,9 +8,9 @@
         android:title="Settings"
         app:showAsAction="ifRoom" />
 
-    <item android:id="@+id/syncBtn"
-        android:icon="@drawable/ic_sync"
-        android:title="Synchronize"
+    <item android:id="@+id/homeBtn"
+        android:icon="@drawable/ic_home"
+        android:title="Home"
         app:showAsAction="ifRoom" />
 
 </menu>
