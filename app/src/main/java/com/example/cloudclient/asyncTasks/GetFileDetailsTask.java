@@ -5,9 +5,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.example.cloudclient.DetailActivity;
+import com.example.cloudclient.activities.DetailActivity;
 import com.example.cloudclient.FileDetails;
-import com.example.cloudclient.MainActivity;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;

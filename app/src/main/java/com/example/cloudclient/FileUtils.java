@@ -17,6 +17,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 
 public class FileUtils {
+    /*
+    Diese Hilfsklasse wurde aus dem Internet uebernommen
+     */
     private static Uri contentUri = null;
 
     Context context;

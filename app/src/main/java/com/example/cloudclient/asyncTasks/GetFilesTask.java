@@ -2,10 +2,9 @@ package com.example.cloudclient.asyncTasks;
 
 import android.os.AsyncTask;
 import android.view.View;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.example.cloudclient.MainActivity;
+import com.example.cloudclient.activities.MainActivity;
 import com.example.cloudclient.R;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
@@ -37,6 +36,7 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
 
         FileList fileList = null;
         try {
+            // Alle Inhalte eines bestimmten Drive Ordners, alphabetisch geordnet, geloeschte ausgenommen
             fileList = driveService.files().list().setQ("'" + folderId + "' in parents and trashed = false").setOrderBy("name asc").execute();
             List<File> curDirectoryFiles = fileList.getFiles();
 
@@ -50,6 +50,7 @@ public class GetFilesTask extends AsyncTask<String, Void, List<File>> {
 
     @Override
     protected void onPostExecute(List<File> files) {
+        // Files in das UI laden
         activity.loadCurDirectoryHandler(files);
 
         // Ladebildschirm ausblenden

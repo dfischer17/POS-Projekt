@@ -3,9 +3,9 @@ package com.example.cloudclient;
 import android.content.Intent;
 import android.net.Uri;
 
+import com.example.cloudclient.activities.MainActivity;
 import com.example.cloudclient.asyncTasks.DeleteTask;
 import com.example.cloudclient.asyncTasks.DownloadTask;
-import com.example.cloudclient.asyncTasks.GetDeletedFilesTask;
 import com.example.cloudclient.asyncTasks.GetFileDetailsTask;
 import com.example.cloudclient.asyncTasks.GetFilesTask;
 import com.example.cloudclient.asyncTasks.PhotoUploadTask;
@@ -23,22 +23,16 @@ public class DriveExplorer {
 
     private MainActivity activity;
 
-    public String lastDownloadId = ""; // todo bessere Loesung finden
+    public String lastDownloadId = "";
 
     public DriveExplorer(Drive driveService, MainActivity activity) {
         this.driveService = driveService;
         this.activity = activity;
     }
 
-    // TODO Ueberpruefen, ob sich die beiden loadFiles Methoden vereinen lassen
     public void loadFilesIntoUI(String folderId) {
         GetFilesTask getFilesTask = new GetFilesTask(driveService, activity);
         getFilesTask.execute(folderId);
-    }
-
-    public void loadDeletedFilesIntoUI() {
-        GetDeletedFilesTask deletedFilesTask = new GetDeletedFilesTask(driveService, activity);
-        deletedFilesTask.execute();
     }
 
     public void deleteFile(String fileId) {
@@ -59,7 +53,7 @@ public class DriveExplorer {
     public void downloadFileRequest(String fileId) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         intent.putExtra("id", fileId);
-        lastDownloadId = fileId; // todo bessere Loesung finden
+        lastDownloadId = fileId;
         activity.startActivityForResult(intent, REQUEST_CODE_DOWNLOAD_FILE);
     }
 

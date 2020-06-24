@@ -19,7 +19,7 @@ public class RenameTask extends AsyncTask<String, Void, Void> {
         String fileId = strings[0];
         String filename = strings[1];
 
-        // Google Drive benötigt ein leeres File zum updaten/umbenennen
+        // Google Drive benötigt ein leeres File als Basis zum updaten/umbenennen
         File temp = new File();
         temp.setName(filename);
 

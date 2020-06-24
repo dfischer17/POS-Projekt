@@ -39,23 +39,11 @@ public class FileDetails implements Serializable {
         return size;
     }
 
-    public void setSize(Long size) {
-        this.size = size;
-    }
-
     public String getMimeType() {
         return mimeType;
     }
 
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
     public DateTime getCreatedDate() {
         return createdDate;
-    }
-
-    public void setCreatedDate(DateTime createdDate) {
-        this.createdDate = createdDate;
     }
 }

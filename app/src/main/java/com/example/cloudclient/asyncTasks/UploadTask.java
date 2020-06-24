@@ -1,16 +1,12 @@
 package com.example.cloudclient.asyncTasks;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.pm.PackageManager;
-
 import android.os.AsyncTask;
-import android.os.Build;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.cloudclient.MainActivity;
-
+import com.example.cloudclient.activities.MainActivity;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
@@ -35,7 +31,7 @@ public class UploadTask extends AsyncTask<String, Void, Void> {
                 PackageManager.PERMISSION_GRANTED) {
             String path = strings[0];
 
-            // Pfad der Datei
+            // Pfad der Datei (am Geraet)
             java.io.File filePath = new java.io.File(path);
 
             // Information ueber Datei

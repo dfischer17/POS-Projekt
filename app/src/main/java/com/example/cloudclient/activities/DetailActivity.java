@@ -1,8 +1,4 @@
-package com.example.cloudclient;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+package com.example.cloudclient.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,7 +6,11 @@ import android.preference.PreferenceManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.cloudclient.fragments.MainFragment;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.cloudclient.DriveExplorer;
+import com.example.cloudclient.FileDetails;
+import com.example.cloudclient.R;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +44,10 @@ public class DetailActivity extends AppCompatActivity {
         TextView createdTimeView = findViewById(R.id.frag_createdTime);
         ImageView imageView = findViewById(R.id.imageView);
 
+        //Backbutton
+        getSupportActionBar().setTitle("Details");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         // Werte setzen
         FileDetails fileDetails = (FileDetails) getIntent().getSerializableExtra("details");
 
@@ -51,10 +55,6 @@ public class DetailActivity extends AppCompatActivity {
         String id = fileDetails.getId();
         String size = String.valueOf(fileDetails.getSize());
         String mimeType = fileDetails.getMimeType();
-
-        //Backbutton
-        getSupportActionBar().setTitle("Details");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Created Date parsen
             DateTimeFormatter rfc3339Parser = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
@@ -67,7 +67,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
         nameView.setText(filename);
-        idView.setText(fileDetails.getId());
+        idView.setText(id);
         sizeView.setText(size + " bytes");
         mimeTypeView.setText(mimeType);
         createdTimeView.setText(createdDateString);

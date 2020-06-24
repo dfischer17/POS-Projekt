@@ -16,10 +16,10 @@ import com.example.cloudclient.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MainFragment extends Fragment {
+public class DetailsFragment extends Fragment {
 
 
-    public MainFragment() {
+    public DetailsFragment() {
         // Required empty public constructor
     }
 

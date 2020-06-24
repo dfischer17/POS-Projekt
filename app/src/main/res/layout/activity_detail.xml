@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_centerInParent="true"
-    tools:context=".DetailActivity" >
+    tools:context=".activities.DetailActivity" >
 
     <ScrollView
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
 
             <fragment
                 android:id="@+id/detailsFragment"
-                android:name="com.example.cloudclient.fragments.MainFragment"
+                android:name="com.example.cloudclient.fragments.DetailsFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"

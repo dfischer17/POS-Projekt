@@ -7,9 +7,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ListView;
+
+import com.example.cloudclient.activities.MainActivity;
+import com.example.cloudclient.adapters.TimelineAdapter;
+import com.example.cloudclient.data.DriveAction;
+import com.example.cloudclient.data.TimelineItem;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;

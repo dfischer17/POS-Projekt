@@ -1,14 +1,12 @@
 package com.example.cloudclient.asyncTasks;
 
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.net.Uri;
 import android.os.AsyncTask;
 
 import androidx.documentfile.provider.DocumentFile;
 
-import com.example.cloudclient.FileUtils;
-import com.example.cloudclient.MainActivity;
+import com.example.cloudclient.activities.MainActivity;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 
@@ -31,6 +29,7 @@ public class DownloadTask extends AsyncTask<Object, Void, Void> {
         Uri uri = (Uri) objects[1];
 
         try {
+            // Datei mit Namen und MimeType des Drive Files erstellen
             File downloadFile = driveService.files().get(fileId).execute();
             filename = downloadFile.getName();
             String mimeType = downloadFile.getMimeType();
@@ -38,6 +37,7 @@ public class DownloadTask extends AsyncTask<Object, Void, Void> {
             DocumentFile tree = DocumentFile.fromTreeUri(activity, uri);
             DocumentFile destination = tree.createFile(mimeType, filename);
 
+            // Inhalt des Drive Files uebertragen
             ContentResolver contentResolver = activity.getContentResolver();
             OutputStream stream = contentResolver.openOutputStream(destination.getUri());
 

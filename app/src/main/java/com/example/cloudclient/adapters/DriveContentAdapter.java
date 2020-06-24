@@ -1,23 +1,20 @@
-package com.example.cloudclient;
+package com.example.cloudclient.adapters;
 
 import android.content.Context;
-import android.media.Image;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.example.cloudclient.DriveExplorer;
+import com.example.cloudclient.R;
 import com.google.api.services.drive.model.File;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.List;
+
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
 
 public class DriveContentAdapter extends BaseAdapter {
     private List<File> curDirectory;

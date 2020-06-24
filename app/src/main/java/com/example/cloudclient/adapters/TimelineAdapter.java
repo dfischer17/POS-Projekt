@@ -1,4 +1,4 @@
-package com.example.cloudclient;
+package com.example.cloudclient.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,9 +7,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.google.api.services.drive.model.File;
+import com.example.cloudclient.R;
+import com.example.cloudclient.data.TimelineItem;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;

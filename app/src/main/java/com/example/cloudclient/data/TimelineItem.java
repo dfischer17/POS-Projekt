@@ -1,4 +1,4 @@
-package com.example.cloudclient;
+package com.example.cloudclient.data;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

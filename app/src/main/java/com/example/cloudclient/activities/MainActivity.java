@@ -1,12 +1,8 @@
-package com.example.cloudclient;
+package com.example.cloudclient.activities;
 
 import android.app.Activity;
-import android.app.IntentService;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -26,7 +22,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -35,8 +30,15 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
 
+import com.example.cloudclient.data.DriveAction;
+import com.example.cloudclient.DriveExplorer;
+import com.example.cloudclient.FileUtils;
+import com.example.cloudclient.R;
+import com.example.cloudclient.Settings;
+import com.example.cloudclient.Timeline;
+import com.example.cloudclient.data.TimelineItem;
+import com.example.cloudclient.adapters.DriveContentAdapter;
 import com.example.cloudclient.asyncTasks.LoadParentDirectoryTask;
-import com.example.cloudclient.asyncTasks.PhotoUploadTask;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -44,14 +46,9 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.FileContent;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.client.util.DateTime;
 import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.Drive.Changes;
 import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.Change;
-import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
 
 import java.io.FileNotFoundException;
@@ -70,9 +67,11 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+
     private static final int REQUEST_CODE_SIGN_IN = 1;
     private static final int REQUEST_CODE_DOWNLOAD_FILE = 2;
     private static final int REQUEST_CODE_UPLOAD_FILE = 3;
+
     private static final String CHANNEL_ID = "channelId";
     private static final int UPLOAD_NOTIFICATION_ID = 1;
     private static final int DOWNLOAD_NOTIFICATION_ID = 2;
@@ -82,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
     // File Management
     private List<File> curDirectory = new ArrayList<>();
-    private List<File> allFiles = new ArrayList<>();
     private DriveContentAdapter driveContentAdapter;
 
+    // Preferences
     private SharedPreferences prefs;
     private SharedPreferences.OnSharedPreferenceChangeListener preferencesChangeListener;
 
@@ -130,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
         curDirectoryLayout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                File clickedFolder = curDirectory.get(position); // todo Aktion auf Ordner beschraenken
+                File clickedFolder = curDirectory.get(position);
 
                 // Ueberpruefen ob Auswahl ein Ordner ist
                 if (clickedFolder.getMimeType().equals(DriveExplorer.folderMimeType)) {
@@ -140,9 +139,10 @@ public class MainActivity extends AppCompatActivity {
                         LoadParentDirectoryTask loadParentDirectory = new LoadParentDirectoryTask(driveService, driveExplorer);
                         loadParentDirectory.execute(clickedFolder.getId());
                     }
-
                     // Unterordner laden
-                    driveExplorer.loadFilesIntoUI(clickedFolder.getId());
+                    else {
+                        driveExplorer.loadFilesIntoUI(clickedFolder.getId());
+                    }
                 }
             }
         });
@@ -189,6 +189,7 @@ public class MainActivity extends AppCompatActivity {
         cameraBtn.setOnClickListener(v -> {
             takePhoto();
         });
+
         historyBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, Timeline.class);
             startActivity(intent);
@@ -217,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
             else {
                 Uri uri = resultData.getData();
                 if (requestCode == REQUEST_CODE_DOWNLOAD_FILE) {
-                    String fileId = driveExplorer.lastDownloadId; //resultData.getStringExtra("id"); todo bessere Loesung finden
+                    String fileId = driveExplorer.lastDownloadId;
                     driveExplorer.downloadFile(fileId, uri);
                 } else if (requestCode == REQUEST_CODE_UPLOAD_FILE) {
                     FileUtils fileUtils = new FileUtils(this);
@@ -361,7 +362,6 @@ public class MainActivity extends AppCompatActivity {
                         })
                         .setNegativeButton("cancel", null)
                         .show();
-
                 break;
 
             default:
